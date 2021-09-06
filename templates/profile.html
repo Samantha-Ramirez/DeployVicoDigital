@@ -1,0 +1,57 @@
+{% if user_type == 'admin' %}
+{% extends "ad_layout.html" %}
+{% elif user_type == 'seller' %}
+{% extends "sl_layout.html" %}
+{% elif user_type == 'client' %}
+{% extends "cl_layout.html" %}
+{% endif %}
+
+{% block title %}Profile - Streaming System{% endblock %}
+
+{% block body %}
+<h2>Profile Page</h2>
+<div>
+    <table>
+        <tr>
+            <td>Username:</td>
+            <td>{{ account.2 }}</td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td>{{ account.3 }}</td>
+        </tr>
+        <tr>
+            <td>Password:</td>
+            <td>{{ account.4 }}</td>
+        </tr>
+        <tr>
+            <td>Phone:</td>
+            <td>{{ account.5 }}</td>
+        </tr>
+        <tr>
+            <td>CI:</td>
+            <td>{{ account.6 }}</td>
+        </tr>
+        <tr>
+            <td>Gender:</td>
+            <td>{{ account.7 }}</td>
+        </tr>
+        <tr>
+            <td>Facebook:</td>
+            <td>{{ account.8 }}</td>
+        </tr>
+        <tr>
+            <td>Instagram:</td>
+            <td>{{ account.9 }}</td>
+        </tr>
+        <tr>
+            <td>Social Media:</td>
+            <td>{{ account.10 }}</td>
+        </tr>
+        <tr>
+            <td>Reference link:</td>
+            <td><a href="{{link}}/{{token}}/{{key}}">{{ link }}/{{ token }}/{{ key }}</a></td>
+        </tr>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% if user_type == 'admin' %}
+{% extends "ad_layout.html" %}
+{% elif user_type == 'seller' %}
+{% extends "sl_layout.html" %}
+{% elif user_type == 'client' %}
+{% extends "cl_layout.html" %}
+{% endif %}
+
+{% block title %} Create payment_method - Streaming System{% endblock %}
+
+{% block body %}
+<h2>Create payment method</h2>
+
+<script>
+    a = 0;
+    function add_field(){
+        a++;
+        var div = document.createElement('div');
+        div.setAttribute('class', 'row');
+            div.innerHTML = '<div class="form-group col-md-1"></div><div class="form-group col-md-6"><input type="text" name="'+a+'" class="form-control"/></div><div class="form-group col-md-5"><select name="'+a+'" class="form-select"><option value="text">Text</option><option value="date">Date</option><option value="file">File</option></select></div>'
+            document.getElementById('fields').appendChild(div);document.getElementById('canciones').appendChild(div);
+    }
+</script>
+
+<div class="card card-body">
+    <form action ="/forms/add_payment_method" method="POST" enctype="multipart/form-data" >
+        <div class="form-group">
+            <label for="payment_platform_name" class="form-label">Payment platform name</label>
+            <input type="text" name="payment_platform_name" class="form-control">
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-1">
+                <input type="button" class="btn btn-primary btn-block" id="add_field()" onClick="add_field()" value="+" />      
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="0" class="form-label">Field</label>
+                <input type="text" name="0" class="form-control">            
+            </div>
+
+            <div class="form-group col-md-5">
+                <label for="0" class="form-label">Type</label>
+                <select name="0" class="form-select">
+                    <option value="text">Text</option>
+                    <option value="date">Date</option>
+                    <option value="file">File</option>
+                </select>             
+            </div>
+        </div>
+        <div id="fields">
+        </div>
+
+        <div class="form-group">
+            <label for="file_name" class="form-label">Logo</label>
+            <input type="file" class="form-control" name="file_name" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block">
+                Save
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

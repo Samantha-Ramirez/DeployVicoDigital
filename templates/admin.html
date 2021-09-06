@@ -1,0 +1,67 @@
+{% extends "ad_layout.html" %}
+
+{% block title %}Home - Streaming System{% endblock %}
+
+{% block body %}
+<script>
+    async function fetchOption(sel) {
+        var id = sel.value;
+        console.log(id);
+        const url = 'http://localhost:3000/requests/' + id;
+        const response = await fetch(url,{mode: 'no-cors'});
+        console.log(response);
+    }
+</script>
+
+<div class="conteiner">
+    <div class="row">
+        <!--REQUEST TABLE-->
+        <div class="col-sm-8">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover table-sm bg-white">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Seller</th>
+                            <th scope="col">Client</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Platform</th>
+                            <th scope="col">Screen</th>
+                            <th scope="col">Receipt</th>
+                            <th scope="col">Options</th>
+                        </tr> 
+                    </thead>
+                    <tbody>
+                        {% for d in reqData %}
+                        <tr>
+                            <td>{{ d.1 }}</td>
+                            <td>{{ d.2 }}</td>
+                            <td>{{ d.3 }}</td>
+                            <td>{{ d.4 }}</td>
+                            <td>{{ d.5 }}</td>
+                            <td><img src="/forms/static/img/{{d.6}}" width = "50" height = "50"></td>
+                            <td>
+                                <button id="myId" type="submit" value="{{d.0}}" onclick="fetchOption(this)">Approve</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!--NEWS OR NOTIFICATIONS-->
+        <div class="col-sm-4"></div>
+    </div>
+
+    <div class="row">
+        <!--ACTIVATED SCREENS TABLE-->
+        <div class="col-sm-8">
+            
+        </div>
+
+        <!--VIDEOS-->
+        <div class="col-sm-4"></div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{
+    "platform": {
+        "query":"SELECT * FROM platform",
+        "attributes":[
+        {"type":"hidden", "name":"id"},
+        {"type":"hidden", "name":"user"},
+        {"type":"text", "label":"Name", "name":"name", "normal":"yes"},
+        {"type":"url", "label":"URL", "name":"url", "normal":"yes"},
+        {"type":"number", "label":"Screen amount", "name":"screen_amount", "normal":"yes"},
+        {"type":"date", "label":"Start date", "name":"start_date", "normal":"no"},
+        {"type":"date", "label":"End date", "name":"end_date", "normal":"no"},
+        {"type":"hidden", "label":"Duration", "name":"duration"},
+        {"type":"file", "label":"Logo", "name":"file_name", "normal":"no"}
+    ]}, 
+    "supplier": {
+        "query":"SELECT sup.id, sup.user, sup.name, pl.name, sup.email, sup.phone, sup.local_phone, sup.telegram, sup.country, sup.paypal, sup.pago_movil, sup.bank FROM supplier sup, platform pl WHERE sup.platform_that_supplies = pl.id",
+        "attributes":[
+        {"type":"hidden", "name":"id"},
+        {"type":"hidden", "name":"user"},
+        {"type":"text", "label":"Name", "name":"name", "normal":"yes"},
+        {"type":"select", "label":"Platform that supplies", "name":"platform_that_supplies", "selectTable":"platform", "normal":"no"},
+        {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
+        {"type":"text", "label":"Phone", "name":"phone", "normal":"yes"},
+        {"type":"text", "label":"Local phone", "name":"local_phone", "normal":"yes"},
+        {"type":"text", "label":"Telegram", "name":"telegram", "normal":"yes"},
+        {"type":"text", "label":"Country", "name":"country", "normal":"yes"},
+        {"type":"text", "label":"PayPal", "name":"paypal", "placeholder":"Email", "normal":"yes"},
+        {"type":"text", "label":"Pago movil", "placeholder":"Phone, CI, Bank", "name":"pago_movil", "normal":"yes"},
+        {"type":"text", "label":"Bank", "name":"bank", "normal":"yes"}
+    ]},  
+    "streaming_account": {
+        "query":"SELECT sa.id, sa.user, sp.name, sup.name, sa.date, sa.email, sa.password FROM streaming_account sa, platform sp,supplier sup WHERE sa.select_platform = sp.id AND sa.select_supplier = sup.id",
+        "attributes":[
+        {"type":"hidden", "name":"id"},
+        {"type":"hidden", "name":"user"},
+        {"type":"select", "label":"Platform", "name":"select_platform", "selectTable":"platform", "normal":"no"},
+        {"type":"select", "label":"Supplier", "name":"select_supplier", "selectTable":"supplier", "normal":"no"},
+        {"type":"date", "label":"Date", "name":"date", "normal":"no"},
+        {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
+        {"type":"text", "label":"Password", "name":"password", "normal":"yes"},
+        {"type":"hidden", "name":"last_screens"}
+    ]},
+    "payment_method": {
+        "query":"SELECT * FROM payment_method",
+        "attributes":[
+        {"type":"hidden", "name":"id"},
+        {"type":"hidden", "name":"user"},
+        {"type":"text", "label":"Payment platform name", "name":"payment_platform_name", "normal":"yes"},
+        {"type":"file", "label":"Logo", "name":"file_name", "normal":"no"},
+        {"type":"text", "label":"Required fields", "name":"required_fields", "normal":"yes"}
+    ]},
+    "user": {
+        "query":"SELECT * FROM user WHERE user_type = 'seller'",
+        "attributes":[
+        {"type":"hidden", "name":"id"},
+        {"type":"hidden", "name":"user_type"},
+        {"type":"hidden", "name":"parent_id"},
+        {"type":"text", "label":"Username", "name":"username", "normal":"yes"},
+        {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
+        {"type":"password", "label":"Password", "name":"password", "normal":"yes"},
+        {"type":"text", "label":"Phone", "name":"phone", "normal":"yes"},
+        {"type":"text", "label":"CI", "name":"ci", "normal":"yes"},
+        {"type":"checkbox", "label":"Gender", "name":"gender", "value":"Man", "normal":"no"},
+        {"type":"checkbox", "label":null, "name":"gender", "value":"Woman", "normal":"no"},
+        {"type":"text", "label":"Facebook", "name":"facebook", "normal":"yes"},
+        {"type":"text", "label":"Instagram", "name":"instagram", "normal":"yes"},
+        {"type":"checkbox", "label":"Social Media", "name":"social_media", "value":"WhatsApp", "normal":"no"},
+        {"type":"checkbox", "label":null, "name":"social_media", "value":"Messenger", "normal":"no"},
+        {"type":"checkbox", "label":null, "name":"social_media", "value":"Telegram", "normal":"no"}
+    ]}, 
+    "client": {
+        "query":"SELECT cl.id, cl.user, cl.name, cl.phone, cl.email, pl.name, pm.payment_platform_name, cl.receipt FROM client cl, streaming_account sa, platform pl, payment_method pm WHERE cl.select_platform = sa.id AND sa.select_platform = pl.id AND pm.id = cl.select_payment_method AND cl.user = ",
+        "attributes":[
+        {"type":"hidden", "name":"id"},
+        {"type":"hidden", "label":"Seller", "name":"user"},
+        {"type":"text", "label":"Name", "name":"name", "normal":"yes"},
+        {"type":"text", "label":"Phone", "name":"phone", "normal":"yes"},
+        {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
+        {"type":"select", "label":"Platform", "name":"select_platform", "selectTable":"streaming_account", "normal":"no"},
+        {"type":"select", "label":"Payment method", "name":"select_payment_method", "selectTable":"payment_method", "normal":"no"},
+        {"type":"file", "label":"Receipt", "name":"receipt", "normal":"no"}
+        ]
+    }
+}

@@ -1,0 +1,48 @@
+{% if user_type == 'admin' %}
+{% extends "ad_layout.html" %}
+{% elif user_type == 'seller' %}
+{% extends "sl_layout.html" %}
+{% endif %}
+
+{% block title %}Sell's team - Streaming System{% endblock %}
+
+{% block body %}
+<h2>Sell's team</h2>
+
+<div class="conteiner">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+            
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover table-sm bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                </tr> 
+            </thead>
+            <tbody>
+                {% for d in data %}
+                <tr>
+                    <td>{{ d.3 }}</td>
+                    <td>{{ d.4 }}</td>
+                    <td>{{ d.6 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
