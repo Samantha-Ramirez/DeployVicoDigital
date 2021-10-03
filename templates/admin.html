@@ -1,33 +1,52 @@
 {% extends "ad_layout.html" %}
 
-{% block title %}Home - Streaming System{% endblock %}
+{% block title %}Inicio | Sistema Streaming{% endblock %}
 
 {% block body %}
-<script>
-    async function fetchOption(sel) {
-        var id = sel.value;
-        console.log(id);
-        const url = 'http://localhost:3000/requests/' + id;
-        const response = await fetch(url,{mode: 'no-cors'});
-        console.log(response);
-    }
-</script>
 
-<div class="conteiner">
+<div class="container">
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>                
+            <div class="modal-header" id="change1">
+            </div>
+            <div class="modal-body">
+                <div class="btn-group btn-group-justified" id="change2">
+                </div>
+            </div>                
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
     <div class="row">
         <!--REQUEST TABLE-->
         <div class="col-sm-8">
+            <h2>Solicitudes</h2>
             <div class="table-responsive">
                 <table class="table table-striped table-bordered table-hover table-sm bg-white">
                     <thead class="table-light">
                         <tr>
-                            <th scope="col">Seller</th>
-                            <th scope="col">Client</th>
-                            <th scope="col">Phone</th>
-                            <th scope="col">Platform</th>
-                            <th scope="col">Screen</th>
-                            <th scope="col">Receipt</th>
-                            <th scope="col">Options</th>
+                            <th scope="col" width="100">Fecha</th>
+                            <th scope="col">Vendedor</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Plataforma</th>
+                            <th scope="col">Pantalla</th>
+                            <th scope="col">Recibo</th>
+                            <th scope="col" width="120">Opciones</th>
                         </tr> 
                     </thead>
                     <tbody>
@@ -38,9 +57,19 @@
                             <td>{{ d.3 }}</td>
                             <td>{{ d.4 }}</td>
                             <td>{{ d.5 }}</td>
-                            <td><img src="/forms/static/img/{{d.6}}" width = "50" height = "50"></td>
+                            <td>{{ d.6 }}</td>
+                            <td>{{ d.7 }}</td>
                             <td>
-                                <button id="myId" type="submit" value="{{d.0}}" onclick="fetchOption(this)">Approve</button>
+                                <button id="myId" type="submit" name="approved" class="btn btn-success" value="{{d.0}}" onclick="fetchInfo(this)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                                        <path d="M13.485 1.431a1.473 1.473 0 0 1 2.104 2.062l-7.84 9.801a1.473 1.473 0 0 1-2.12.04L.431 8.138a1.473 1.473 0 0 1 2.084-2.083l4.111 4.112 6.82-8.69a.486.486 0 0 1 .04-.045z"/>
+                                    </svg>
+                                </button>
+                                <button id="myId" type="submit" name="rejected" class="btn btn-danger" value="{{d.0}}" onclick="fetchInfo(this)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                        <path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"/>
+                                    </svg>
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -50,18 +79,100 @@
         </div>
 
         <!--NEWS OR NOTIFICATIONS-->
-        <div class="col-sm-4"></div>
+        <div class="col-sm-4">
+            <h2>Notificaciones</h2>
+        </div>
     </div>
 
     <div class="row">
-        <!--ACTIVATED SCREENS TABLE-->
+        <!--ACTIVATED SCREENS-->
         <div class="col-sm-8">
-            
+            <h2>Pantallas activas</h2>
+            {% for sc in scData %}
+            <button class="accordion">
+                <img src="/forms/static/img/{{sc.0}}" width="30" height="30">
+                {{sc.1}} {{sc.2}} | Vence el {{sc.3}} | Faltan {{sc.4}}
+            </button>
+            <div class="panel">
+                <p>{{sc.1}}: {{sc.5}}, {{sc.6}}</p>
+                <a class="btn btn-success" href="http://web.whatsapp.com/send?phone={{sc.6}}&text={{sc.8}}">Enviar cobro por WhatsApp</a>
+                <input type="hidden" value="{{sc.8}}" id="{{sc.9}}">
+                <button type="button" class="btn btn-primary" onclick="copyText('{{sc.9}}')">Copiar</button>
+            </div>
+            {% endfor %}
         </div>
 
         <!--VIDEOS-->
-        <div class="col-sm-4"></div>
+        <div class="col-sm-4">
+            <h2>Videos</h2>
+        </div>
     </div>
 </div>
+
+<script>
+    // Request and Modal
+    async function fetchInfo(sel) {
+        var id = sel.value;
+        var option = sel.getAttribute('name');
+        const response = await fetch(`/requests/${id}/${option}`);
+        const info = await response.json();
+
+        // Modal
+        if (option === 'approved'){
+            var modal = document.getElementById("myModal");
+            var close = document.getElementsByClassName("close")[0];
+            document.getElementById("change1").innerHTML = `<h2 class="modal-title">Enviar datos a ${info['user']}, ${info['phone']}</h2>`;
+            document.getElementById("change2").innerHTML = `<input type="hidden" value="${info['formatMgg']}" id="format">
+                    <button type="button" class="btn btn-light btn-lg" onclick="copyText('format')">Copiar en clipboard</button>
+                    <a class="btn btn-primary btn-lg" href="http://web.whatsapp.com/send?phone=${info['phone']}&text=${info['formatMgg']}">Enviar cobro por WhatsApp</a>`;
+            modal.style.display = "block";
+
+            close.onclick = function() {
+                modal.style.display = "none";
+                location.reload();
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                    location.reload();
+                }
+            }
+
+        } else if (option === 'rejected'){
+            location.reload();
+        };
+    };
+
+    // Accordion function
+    var acc = document.getElementsByClassName("accordion");
+    var i;
+    for (i = 0; i < acc.length; i++){
+        acc[i].addEventListener("click", function(){
+            this.classList.toggle("actived");
+            var panel = this.nextElementSibling;
+            if (panel.style.maxHeight){
+                panel.style.maxHeight = null;
+            } else{
+                panel.style.maxHeight = panel.scrollHeight + "px";
+            }
+        });
+    }
+
+    // Copy text
+    function copyToClipboard(text) {
+        var sampleTextarea = document.createElement("textarea");
+        document.body.appendChild(sampleTextarea);
+        sampleTextarea.value = text; //save main text in it
+        sampleTextarea.select(); //select textarea contenrs
+        document.execCommand("copy");
+        document.body.removeChild(sampleTextarea);
+    }
+
+    function copyText(id){
+        var copyText = document.getElementById(id);
+        copyToClipboard(copyText.value);
+    }
+</script>
 
 {% endblock %}

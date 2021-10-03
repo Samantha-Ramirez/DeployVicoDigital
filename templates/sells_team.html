@@ -4,32 +4,19 @@
 {% extends "sl_layout.html" %}
 {% endif %}
 
-{% block title %}Sell's team - Streaming System{% endblock %}
+{% block title %}Equipo de ventas | Sistema Streaming{% endblock %}
 
 {% block body %}
-<h2>Sell's team</h2>
+<h2>Equipo de ventas</h2>
 
-<div class="conteiner">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <strong>{{ message }}</strong>
-        <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-            
+<div class="conteiner">       
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover table-sm bg-white">
             <thead class="table-light">
                 <tr>
-                    <th scope="col">Name</th>
+                    <th scope="col">Nombre</th>
                     <th scope="col">Email</th>
-                    <th scope="col">Phone</th>
+                    <th scope="col">T&eacute;lefono</th>
                 </tr> 
             </thead>
             <tbody>

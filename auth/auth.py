@@ -18,32 +18,39 @@ stformFullPath = os.path.realpath('./stform.json')
 f = open(stformFullPath,)
 data = json.load(f)
 
-def decrypt(token: bytes, key: bytes) -> bytes:
-    return Fernet(key).decrypt(token)
-
 # PAGES
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     msg = ''
-    token = None
-    key = None
+    parent_id = None
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         username = request.form['username']
         password = request.form['password']
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM user WHERE username = %s AND password = %s', (username, password,))
+        cur.execute('SELECT * FROM seller WHERE username = %s AND password = %s', (username, password,))
         mysql.connection.commit()
         account = cur.fetchone()
+        x = 'seller'
+        if account == None:
+            cur.execute('SELECT * FROM client WHERE username = %s AND password = %s', (username, password,))
+            mysql.connection.commit()
+            account = cur.fetchone()
+            x = 'client'
+        
         if account:
             session['loggedin'] = True
             session['id'] = account[0]
-            session['user_type'] = account[1]
-            session['username'] = account[3]
+            if x == 'client':
+                session['user_type'] = x
+                session['username'] = account[2]
+            else:
+                session['user_type'] = account[1]
+                session['username'] = account[3]
             return redirect('/')
         else:
-            msg = 'Incorrect username or password!'
+            msg = 'Usuario o contraseña incorrecta!'
 
-    return render_template('auth/login.html', msg = msg, token = token, key = key)
+    return render_template('auth/login.html', msg = msg, parent_id = parent_id)
 
 @auth_bp.route('/logout')
 def logout():
@@ -53,11 +60,11 @@ def logout():
     session.pop('username', None)
     return redirect('/auth/login')
 
-@auth_bp.route('/signup/<token>/<key>', methods=['GET', 'POST'])
-def signup(token, key):
+@auth_bp.route('/signup_seller/<parent_id>', methods=['GET', 'POST'])
+def signup_seller(parent_id):
     msg = ''
     if request.method == 'POST' and 'username' in request.form and 'email' in request.form and 'password' in request.form and 'phone' in request.form and 'ci' in request.form and 'facebook' in request.form and 'instagram' in request.form:
-        attrb = data['user']['attributes']
+        attrb = data['seller']['attributes']
         username = request.form['username']
         email = request.form['email']
         into = []
@@ -67,17 +74,12 @@ def signup(token, key):
                 into.append(i['name']) 
                 if request.form['email'] == 'yobell@gmail.com':
                     values.append('"'+ 'admin' + '"')
-                elif request.form['userType'] == 'Client':
-                    values.append('"'+ 'client' + '"')
-                elif request.form['userType'] == 'Seller':
+                else:
                     values.append('"'+ 'seller' + '"')
                 
-            elif i['name'] == 'parent_id' and token != 'None' and key != 'None':
+            elif i['name'] == 'parent_id' and parent_id != 'None':
                 into.append(i['name']) 
-                token2 = token[2:-1]
-                key2 = key[2:-1]
-                descryptToken = decrypt(token2.encode(), key2.encode()).decode()
-                values.append(descryptToken)
+                values.append(parent_id)
 
             elif i['type'] == 'checkbox' and i['label'] != None:
                 checkbox = request.form.getlist(i['name'])
@@ -85,31 +87,73 @@ def signup(token, key):
                 into.append(i['name']) 
                 values.append('"' + string + '"')
 
+            elif i['type'] != 'hidden' and i['type'] != 'checkbox':
+                into.append(i['name']) 
+                values.append('"' + request.form[i['name']] + '"') 
+        
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT * FROM seller WHERE username = %s', (username,))
+        mysql.connection.commit()
+        account = cur.fetchone()
+
+        if account:
+            msg = 'Esta cuenta ya existe!'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            msg = 'Direcci&oacute;n de correo inv&aacute;lida!'
+        elif not re.match(r'[A-Za-z0-9]+', username):
+            msg = 'El nombre de usuario solo debe contener car&aacute;cteres y n&uacute;meros!'
+        else:
+            sep = ',' 
+            query = 'INSERT INTO seller (' + sep.join(into) + ') ' +  'VALUES (' + sep.join(values) + ')'
+            cur.execute(query)
+            mysql.connection.commit()
+            msg = 'Te registraste exitosamente!'
+
+    elif request.method == 'POST':
+        msg = 'Por favor completa el formulario!'
+
+    return render_template('auth/signup_seller.html', msg = msg, parent_id = parent_id)
+
+@auth_bp.route('/signup_client', methods=['GET', 'POST'])
+def signup_client():
+    msg = ''
+    parent_id = None
+    if request.method == 'POST' and 'username' in request.form and 'email' in request.form and 'password' in request.form and 'phone':
+        attrb = data['client']['attributes']
+        username = request.form['username']
+        email = request.form['email']
+        into = []
+        values = []
+        for i in attrb:
+            if i['name'] == 'user_type':
+                into.append(i['name']) 
+                values.append('"'+ 'client' + '"')
+
             elif i['type'] != 'hidden':
                 into.append(i['name']) 
                 values.append('"' + request.form[i['name']] + '"') 
         
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM user WHERE username = %s', (username,))
+        cur.execute('SELECT * FROM client WHERE username = %s', (username,))
         mysql.connection.commit()
         account = cur.fetchone()
 
         if account:
-            msg = 'Account already exists!'
+            msg = 'Esta cuenta ya existe!'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            msg = 'Invalid email address!'
+            msg = 'Direcci&oacute;n de correo inv&aacute;lida!'
         elif not re.match(r'[A-Za-z0-9]+', username):
-            msg = 'Username must contain only characters and numbers!'
+            msg = 'El nombre de usuario solo debe contener caracteres y n&uacute;meros!'
         else:
             sep = ',' 
-            query = 'INSERT INTO user (' + sep.join(into) + ') ' +  'VALUES (' + sep.join(values) + ')'
+            query = 'INSERT INTO client (' + sep.join(into) + ') ' +  'VALUES (' + sep.join(values) + ')'
             cur.execute(query)
             mysql.connection.commit()
-            msg = 'You have successfully registered!'
+            msg = 'Te registraste exitosamente!'
 
     elif request.method == 'POST':
-        msg = 'Please fill out the form!'
+        msg = 'Por favor completa el formulario!'
 
-    return render_template('auth/signup.html', msg = msg, token = token, key = key)
+    return render_template('auth/signup_client.html', msg = msg, parent_id = parent_id)
 
 f.close()

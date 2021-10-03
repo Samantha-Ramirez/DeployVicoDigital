@@ -22,14 +22,6 @@ def get_json_form(form):
         data = json.load(f)
     return data, f
 
-def dateFormat(tableData, index):
-    date = None
-    for d in tableData:
-        for i in d:
-            if i == d[index] and index != 0:
-                date = datetime.datetime.strptime(str(i), "%Y-%m-%d").strftime("%d/%m/%Y")
-    return date
-
 # PAGES
 @tables_bp.route('/dynamic_table/<form>-<formreq>')
 def dynamic_table(form, formreq):
@@ -37,41 +29,33 @@ def dynamic_table(form, formreq):
         data, f = get_json_form(form)
         attrb = data[formreq]['attributes']
         query = data[formreq]['query']
-        if form == 'dy' or (formreq == 'client' and session['user_type'] != 'admin'):
-            query = query + '"' + session['username'] + '"'
-
-        elif formreq == 'client' and session['user_type'] == 'admin':
-            query = "SELECT cl.id, cl.user, cl.name, cl.phone, cl.email, pl.name, pm.payment_platform_name, cl.receipt FROM client cl, streaming_account sa, platform pl, payment_method pm WHERE cl.select_platform = sa.id AND sa.select_platform = pl.id AND pm.id = cl.select_payment_method"
-        
+        if formreq == 'client' and session['user_type'] == 'admin':
+            query = "SELECT cl.id, sl.username, cl.username, cl.phone, cl.email, cl.password FROM client cl, seller sl WHERE cl.user = sl.id"
+        elif form == 'dy' or (formreq == 'client' and session['user_type'] != 'admin'):
+            query = query + str(session['id'])
+            
         cur = mysql.connection.cursor()
         cur.execute(query)
         mysql.connection.commit()
-        tableData = cur.fetchall()
+        tableData = list(cur.fetchall())
 
         # Finding the index
         index = 0
         fileIndex = None
-        dateIndex = 0
-        dateIndex2 = 0
-        x = 1
         for i in attrb:
             if i['type'] == 'file':
                 fileIndex = index
             elif i['type'] == 'date':
-                if x == 1:
-                    dateIndex = index
-                elif x == 2:
-                    dateIndex2 = index
-                x = x + 1
+                x = 0
+                for tb in tableData:
+                    tb = list(tb)
+                    tb[index] = datetime.datetime.strptime(str(tb[index]), "%Y-%m-%d").strftime('%d-%m-%Y')
+                    tableData[x] = tb
+                    x = x + 1
             index = index + 1
-        
-        # Changing the date format
-        date = dateFormat(tableData, dateIndex)
-        date2 = dateFormat(tableData, dateIndex2)
 
         return render_template('tables/dynamic_table.html', formreq = formreq, attrb = attrb, tableData = tableData, 
-        fileIndex = fileIndex, dateIndex = dateIndex, date = date, dateIndex2 = dateIndex2, date2 = date2, 
-        form = form, user_type = session['user_type'])
+        fileIndex = fileIndex, form = form, user_type = session['user_type'])
         
         f.close()
     return redirect('/auth/login')

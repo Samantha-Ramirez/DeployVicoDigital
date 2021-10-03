@@ -6,10 +6,10 @@
 {% extends "cl_layout.html" %}
 {% endif %}
 
-{% block title %} Create payment_method - Streaming System{% endblock %}
+{% block title %} Crear m&eacute;todo de pago | Sistema Streaming{% endblock %}
 
 {% block body %}
-<h2>Create payment method</h2>
+<h2>Crear m&eacute;todo de pago</h2>
 
 <script>
     a = 0;
@@ -23,7 +23,7 @@
 </script>
 
 <div class="card card-body">
-    <form action ="/forms/add_payment_method" method="POST" enctype="multipart/form-data" >
+    <form action ="/forms/add_payment_method/{{name}}/{{id}}" method="POST" enctype="multipart/form-data" >
         <div class="form-group">
             <label for="payment_platform_name" class="form-label">Payment platform name</label>
             <input type="text" name="payment_platform_name" class="form-control">
@@ -35,16 +35,16 @@
             </div>
 
             <div class="form-group col-md-6">
-                <label for="0" class="form-label">Field</label>
+                <label for="0" class="form-label">Campo</label>
                 <input type="text" name="0" class="form-control">            
             </div>
 
             <div class="form-group col-md-5">
-                <label for="0" class="form-label">Type</label>
+                <label for="0" class="form-label">Tipo</label>
                 <select name="0" class="form-select">
-                    <option value="text">Text</option>
-                    <option value="date">Date</option>
-                    <option value="file">File</option>
+                    <option value="text">Texto</option>
+                    <option value="date">Fecha</option>
+                    <option value="file">Archivo</option>
                 </select>             
             </div>
         </div>
@@ -58,7 +58,7 @@
 
         <div class="form-group">
             <button type="submit" class="btn btn-primary btn-block">
-                Save
+                Guardar
             </button>
         </div>
     </form>

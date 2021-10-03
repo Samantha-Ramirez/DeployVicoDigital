@@ -6,51 +6,31 @@
 {% extends "cl_layout.html" %}
 {% endif %}
 
-{% block title %}Profile - Streaming System{% endblock %}
+{% block title %}Profile | Sistema Streaming{% endblock %}
 
 {% block body %}
-<h2>Profile Page</h2>
+<h2>Profile</h2>
 <div>
     <table>
         <tr>
-            <td>Username:</td>
+            <td><b>Nombre de usuario: </b></td>
+            <td>{{ account.0 }}</td>
+        </tr>
+        <tr>
+            <td><b>T&eacute;lefono: </b></td>
+            <td>{{ account.1 }}</td>
+        </tr>
+        <tr>
+            <td><b>Email: </b></td>
             <td>{{ account.2 }}</td>
         </tr>
         <tr>
-            <td>Email:</td>
+            <td><b>Contrase&ntilde;a: </b></td>
             <td>{{ account.3 }}</td>
         </tr>
         <tr>
-            <td>Password:</td>
-            <td>{{ account.4 }}</td>
-        </tr>
-        <tr>
-            <td>Phone:</td>
-            <td>{{ account.5 }}</td>
-        </tr>
-        <tr>
-            <td>CI:</td>
-            <td>{{ account.6 }}</td>
-        </tr>
-        <tr>
-            <td>Gender:</td>
-            <td>{{ account.7 }}</td>
-        </tr>
-        <tr>
-            <td>Facebook:</td>
-            <td>{{ account.8 }}</td>
-        </tr>
-        <tr>
-            <td>Instagram:</td>
-            <td>{{ account.9 }}</td>
-        </tr>
-        <tr>
-            <td>Social Media:</td>
-            <td>{{ account.10 }}</td>
-        </tr>
-        <tr>
-            <td>Reference link:</td>
-            <td><a href="{{link}}/{{token}}/{{key}}">{{ link }}/{{ token }}/{{ key }}</a></td>
+            <td><b>Link de referencia: </b></td>
+            <td><a href="{{link}}/{{id}}">{{ link }}/{{ id }}</a></td>
         </tr>
     </table>
 </div>

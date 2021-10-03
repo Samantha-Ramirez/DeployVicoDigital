@@ -1,7 +1,6 @@
 * {
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "segoe ui", roboto, oxygen, ubuntu, cantarell, "fira sans", "droid sans", "helvetica neue", Arial, sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -23,9 +22,9 @@ select {
     font-size: inherit;
     cursor: inherit;
     line-height: inherit;
-  }
+}
 
-.conteiner{
+.container{
     margin: 0 auto;
 }
   
@@ -52,8 +51,5 @@ select {
   
 #checkboxes label {
     display: block;
-}
-
-th, td {
-    word-wrap: normal;
+    margin-bottom: .0rem;
 }
