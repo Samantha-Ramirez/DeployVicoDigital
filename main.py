@@ -9,6 +9,11 @@ import os
 # APP
 app, mysql = create_app()
 
+# ENVIRONMENT
+if 'FLASK_ENV' in os.environ:
+    environment = os.environ['FLASK_ENV']
+else:
+    environment = None
 
 # BLUEPRINTS
 from auth.auth import auth_bp
@@ -121,8 +126,10 @@ def profile():
 
         # REFERENCE LINK
         id = str(session['id'])
-        #CUANDO SE SUBA AL SERVIDOR, CAMBIAR REFERENCE LINK
-        link = 'http://127.0.0.1:3000/referencelink'
+        if environment == 'development':
+            link = 'http://127.0.0.1:3000/referencelink'
+        else: 
+            link = 'http://vicoweb.pythonanywhere.com/referencelink'
         return render_template('profile.html', account = account, link = link, id =  id, user_type = session['user_type'])
     
     return redirect('/auth/login')

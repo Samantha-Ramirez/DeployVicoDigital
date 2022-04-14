@@ -1,1 +1,1 @@
-{"Pago_movil": {"query": "SELECT * FROM Pago_movil WHERE seller_id = ", "attributes": [{"type": "hidden", "name": "id"}, {"type": "hidden", "name": "seller_id"}, {"type": "text", "label": "Email", "name": "email", "normal": "yes"}, {"type": "file", "label": "Ci", "name": "ci", "normal": "no"}]}}
+{}
