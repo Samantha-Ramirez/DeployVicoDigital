@@ -33,22 +33,28 @@
         var selected = sel.options[sel.selectedIndex];
         var extra = selected.getAttribute('attrb');
         var x = document.getElementById("mySelect").value;
+        var environment = document.getElementById('environment').getAttribute('value');
 
         // PINTAR
         let output = '<p>';
         for (let j in paymentData[extra][0]){
             if (j != 'id' && j != 'seller_id'){
-                if (paymentData[extra][0][j] == 'file'){
-                    paymentData[extra][0][j] = "<img src=\'/forms/static/img/ID.jpg\' width = \'70\' height = \'70\'>"
+                if (paymentData[extra][0][j][0] == 'file'){
+                    if (environment == 'development'){
+                        paymentData[extra][0][j] = "<img src=\'/forms/static/img/" + paymentData[extra][0][j][1] + "\' width = \'70\' height = \'70\'>"
+                    }else{
+                        paymentData[extra][0][j] = "<img src=\'https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C" + paymentData[extra][0][j][1] + "\' width = \'70\' height = \'70\'>"
+                    }
                 }
                 output += j + ': ' + paymentData[extra][0][j] + '<br/>';
             }
         }
-        
         output += '<p>';
         document.getElementById("paymentData").innerHTML = output;
     }
 </script>
+
+<div id="environment" value="{{environment}}" style="display: none;"> </div>
 
 <h2>Crear {{formreq}} </h2>
 
@@ -58,7 +64,7 @@
             {% if i.type != 'hidden' %}
                 <div class="form-group">
                     <!--NORMAL-->
-                    {% if i.normal == 'yes'%}
+                    {% if i.normal == 'yes' %}
                         <label for="{{i.name}}" class="form-label">{{i.label}}</label>
                         {% if i.placeholder != None %}
                             <input type="{{i.type}}" name="{{i.name}}" placeholder="{{i.placeholder}}" class="form-control">
@@ -145,5 +151,5 @@
         </div>
     </form>
 </div>
- 
+
 {% endblock %}

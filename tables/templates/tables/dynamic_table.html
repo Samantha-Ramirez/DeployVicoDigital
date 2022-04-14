@@ -42,8 +42,12 @@
                 <tr>
                     {% for i in d %}
                         {% if i == d[fileIndex] %}
-                            <td><img src="/forms/static/img/{{i}}" width = "50" height = "50"></td>
-
+                            {% if environment == 'development' %}
+                                <td><img src="/forms/static/img/{{i}}" width = "50" height = "50"></td>
+                            {% else %}
+                                <td><img src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{i}}" width = "50" height = "50"></td>
+                            {% endif %}
+                
                         {% elif formreq != 'seller' and  formreq != 'client' and loop.index != 1 and loop.index != 2 %}
                             <td>{{ i }}</td>
 

@@ -9,15 +9,22 @@ tables_bp = Blueprint('tables_bp', __name__,
     template_folder='templates')
 
 # PAGE'S REQUIREMENTS
-app, mysql = create_app()
+app, mysql, environment = create_app()
+
 
 def get_json_form(form):
     if form == 'st':
-        stformFullPath = os.path.realpath('./stform.json')
+        if environment == 'development':
+            stformFullPath = os.path.realpath('./stform.json')
+        else:
+            stformFullPath = os.path.realpath('./deploy/stform.json')
         f = open(stformFullPath,)
         data = json.load(f)
     elif form == 'dy':
-        dyformFullPath = os.path.realpath('./dyform.json')
+        if environment == 'development':
+            dyformFullPath = os.path.realpath('./dyform.json')
+        else:
+            dyformFullPath = os.path.realpath('./deploy/dyform.json')
         f = open(dyformFullPath,)
         data = json.load(f)
     return data, f
@@ -55,7 +62,7 @@ def dynamic_table(form, formreq):
             index = index + 1
 
         return render_template('tables/dynamic_table.html', formreq = formreq, attrb = attrb, tableData = tableData, 
-        fileIndex = fileIndex, form = form, user_type = session['user_type'])
+        fileIndex = fileIndex, form = form, user_type = session['user_type'], environment = environment)
         
         f.close()
     return redirect('/auth/login')

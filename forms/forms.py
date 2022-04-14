@@ -14,18 +14,24 @@ forms_bp = Blueprint('forms_bp', __name__,
     static_folder='static')
 
 # PAGE'S REQUIREMENTS
-app, mysql = create_app()
+app, mysql, environment = create_app()
 
 basepath = path.dirname(__file__)
 app.config['UPLOAD_FOLDER'] = 'static/img'
 
 def get_json_form(form):
     if form == 'st':
-        stformFullPath = os.path.realpath('./stform.json')
+        if environment == 'development':
+            stformFullPath = os.path.realpath('./stform.json')
+        else:
+            stformFullPath = os.path.realpath('./deploy/stform.json')
         f = open(stformFullPath,)
         data = json.load(f)
     elif form == 'dy':
-        dyformFullPath = os.path.realpath('./dyform.json')
+        if environment == 'development':
+            dyformFullPath = os.path.realpath('./dyform.json')
+        else:
+            dyformFullPath = os.path.realpath('./deploy/dyform.json')
         f = open(dyformFullPath,)
         data = json.load(f)
     return data, f
@@ -120,8 +126,7 @@ def dynamic_form(form, formreq):
                                 date = datetime.datetime.strptime(str(y[z]), "%Y-%m-%d").strftime("%d/%m/%Y")
                                 item[x['name']] = date
                             elif x['type'] == 'file':
-                                file = 'file'
-                                item[x['name']] = file
+                                item[x['name']] = ['file', y[z]]
                             else:
                                 item[x['name']] = y[z]
                             z += 1
@@ -135,7 +140,7 @@ def dynamic_form(form, formreq):
             i['value'] = get_date()
 
     f.close()
-    return render_template('forms/dynamic_form.html', attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'])
+    return render_template('forms/dynamic_form.html', attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'], environment = environment)
 
 @forms_bp.route('/add/<form>-<formreq>', methods=['GET', 'POST'])
 def add(form, formreq):

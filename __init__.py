@@ -27,4 +27,4 @@ def create_app():
 
     mysql = MySQL(app)
     
-    return app, mysql
+    return app, mysql, environment

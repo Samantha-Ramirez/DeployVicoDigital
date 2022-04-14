@@ -7,13 +7,7 @@ import os
 
 
 # APP
-app, mysql = create_app()
-
-# ENVIRONMENT
-if 'FLASK_ENV' in os.environ:
-    environment = os.environ['FLASK_ENV']
-else:
-    environment = None
+app, mysql, environment = create_app()
 
 # BLUEPRINTS
 from auth.auth import auth_bp
@@ -83,7 +77,7 @@ def index():
             scData = list(cur.fetchall())
             scData = screenData(scData)
                 
-            return render_template('admin.html', username = session['username'], user_type = session['user_type'], reqData = reqData, scData = scData)
+            return render_template('admin.html', username = session['username'], user_type = session['user_type'], reqData = reqData, scData = scData, environment = environment)
         
         elif session['user_type'] == 'seller':
             query = 'SELECT pl.file_name, pl.name, sc.duration, sc.end_date, cl.username, cl.phone, sc.email, sc.id FROM platform pl, screen sc, client cl WHERE sc.platform = pl.id AND sc.client = cl.id AND sc.client IS NOT NULL AND cl.user = ' + str(session['id']) + ' ORDER BY sc.start_date'
@@ -93,7 +87,7 @@ def index():
             scData = list(cur.fetchall())
             scData = screenData(scData)
 
-            return render_template('seller.html', username = session['username'], scData = scData)
+            return render_template('seller.html', username = session['username'], scData = scData, environment = environment)
         
         elif session['user_type'] == 'client':
             query = 'SELECT sc.*, pl.name FROM screen sc, platform pl WHERE sc.platform = pl.id AND client = ' + str(session['id'])
@@ -108,7 +102,7 @@ def index():
                 scData[x] = sc
                 x = x + 1
             
-            return render_template('client.html', username = session['username'], scData = scData)
+            return render_template('client.html', username = session['username'], scData = scData, environment = environment)
 
     return redirect('/auth/login')
 
