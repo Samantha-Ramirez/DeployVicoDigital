@@ -1,14 +1,14 @@
 * {
     box-sizing: border-box;
-    font-size: 15px;
+    font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    background: #D3CCE3;
-    background: -webkit-linear-gradient(to right, #E9E4F0, #D3CCE3);
-    background: linear-gradient(to right, #E9E4F0, #D3CCE3);
+    background: hwb(0 100% 0%);
+    background: -webkit-linear-gradient(to right, hwb(0 100% 0%), hwb(0 100% 0%));
+    background: linear-gradient(to right, hwb(0 100% 0%), hwb(0 100% 0%));
 }
 
 select {

@@ -1,5 +1,6 @@
 {
     "platform": {
+        "label":"Plataformas",
         "query":"SELECT * FROM platform ORDER BY id ASC",
         "attributes":[
         {"type":"hidden", "name":"id"},
@@ -13,6 +14,7 @@
         {"type":"file", "label":"Logo", "name":"file_name", "normal":"no"}
     ]}, 
     "supplier": {
+        "label":"Proveedores",
         "query":"SELECT sup.id, sup.user, sup.name, pl.name, sup.email, sup.phone, sup.local_phone, sup.telegram, sup.country, sup.paypal, sup.pago_movil, sup.bank FROM supplier sup, platform pl WHERE sup.platform_that_supplies = pl.id ORDER BY sup.id ASC",
         "attributes":[
         {"type":"hidden", "name":"id"},
@@ -29,6 +31,7 @@
         {"type":"text", "label":"Banco", "name":"bank", "normal":"yes"}
     ]},  
     "streaming_account": {
+        "label":"Cuentas streaming",
         "query":"SELECT sa.id, sa.user, sp.name, sup.name, sa.date, sa.email, sa.password FROM streaming_account sa, platform sp,supplier sup WHERE sa.select_platform = sp.id AND sa.select_supplier = sup.id ORDER BY sa.id ASC",
         "attributes":[
         {"type":"hidden", "name":"id"},
@@ -41,6 +44,7 @@
         {"type":"hidden", "name":"last_screens"}
     ]},
     "seller": {
+        "label":"Vendedores",
         "query":"SELECT * FROM seller WHERE user_type = 'seller' ORDER BY id ASC",
         "attributes":[
         {"type":"hidden", "name":"id"},
@@ -51,15 +55,11 @@
         {"type":"password", "label":"Clave", "name":"password", "normal":"yes"},
         {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes"},
         {"type":"text", "label":"CI", "name":"ci", "normal":"yes"},
-        {"type":"checkbox", "label":"Genero", "name":"gender", "value":"Man", "normal":"no"},
-        {"type":"checkbox", "label":null, "name":"gender", "value":"Woman", "normal":"no"},
-        {"type":"text", "label":"Facebook", "name":"facebook", "normal":"yes"},
-        {"type":"text", "label":"Instagram", "name":"instagram", "normal":"yes"},
-        {"type":"checkbox", "label":"Redes sociales", "name":"social_media", "value":"WhatsApp", "normal":"no"},
-        {"type":"checkbox", "label":null, "name":"social_media", "value":"Messenger", "normal":"no"},
-        {"type":"checkbox", "label":null, "name":"social_media", "value":"Telegram", "normal":"no"}
+        {"type":"radio", "label":null, "name":"gender", "value":"Man", "normal":"no"},
+        {"type":"radio", "label":null, "name":"gender", "value":"Woman", "normal":"no"}
     ]}, 
     "payment_method": {
+        "label":"Metodos de pago",
         "query":"SELECT * FROM payment_method ORDER BY id ASC",
         "attributes":[
         {"type":"hidden", "name":"id"},
@@ -69,6 +69,7 @@
         {"type":"text", "label":"Campos requeridos", "name":"required_fields", "normal":"yes"}
     ]},
     "client": {
+        "label":"Clientes",
         "query":"SELECT id, username, phone, email, password FROM client WHERE user = ",
         "attributes":[
         {"type":"hidden", "name":"id"},
@@ -80,6 +81,7 @@
         ]
     },
     "request": {
+        "label":"Solicitudes",
         "query":"",
         "attributes":[
         {"type":"hidden", "name":"id"},

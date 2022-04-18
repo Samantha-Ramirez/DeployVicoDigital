@@ -6,11 +6,14 @@
 <li class="nav-item">
     <a class="nav-link" href="/auth/login">Iniciar sesi&oacute;n</a>       
 </li>
-<li class="nav-item">
-    <a class="nav-link" href="/auth/signup_seller/{{parent_id}}" class="active">Reg&iacute;strate como vendedor</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="/auth/signup_client">Reg&iacute;strate como cliente</a>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      Registrarse 
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+      <li><a class="dropdown-item" href="/auth/signup_seller/{{parent_id}}"  class="active">Como vendedor</a></li>
+      <li><a class="dropdown-item" href="/auth/signup_client">Como cliente</a></li>
+    </ul>
 </li>
 {% endblock %}
 
@@ -25,45 +28,30 @@
             <input type="email" name="email" placeholder="Email" id="email" required>
         </div>
         <div class="form-group">
-            <input type="password" name="password" placeholder="Contrase&ntilde;a" id="password" required>
-        </div>
-        <div class="form-group">
             <input type="text" name="phone" placeholder="Tel&eacute;fono" id="phone" required>
         </div>
         <div class="form-group">
             <input type="text" name="ci" placeholder="CI" id="ci" required>
-        </div>                
+        </div>
+        <div class="form-group">
+            <input type="password" name="password" placeholder="Contrase&ntilde;a" id="password" required>
+        </div>
         <div class="form-group">
             <label for="gender" class="container">G&eacute;nero</label>
-            <div class="form-check">
-                <input type="checkbox" name="gender" value="Man" id="gender">
-                <label for="Man" class="container">Hombre</label> 
-            </div>
-            <div class="form-check">
-                <input type="checkbox" name="gender" value="Woman" id="gender">
-                <label for="Woman" class="container">Mujer</label> 
-            </div>
-        </div>
-        <div class="form-group">
-            <input type="text" name="facebook" placeholder="Facebook" id="facebook" required>
-        </div>
-        <div class="form-group">
-            <input type="text" name="instagram" placeholder="Instagram" id="instagram" required>
-        </div>
-        <div class="form-group">
-            <label for="social_media" class="container">Redes sociales</label>
-            <div class="form-check">
-                <input type="checkbox" name="social_media" value="WhatsApp" id="social_media">
-                <label for="social_media" class="container">WhatsApp</label> 
-            </div>
-            <div class="form-check">
-                <input type="checkbox" name="social_media" value="Messenger" id="social_media">
-                <label for="social_media" class="container">Messenger</label> 
-            </div>
-            <div class="form-check">
-                <input type="checkbox" name="social_media" value="Telegram" id="social_media">
-                <label for="social_media" class="container">Telegram</label> 
-            </div>
+            <fieldset class="form-group">
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="gender" id="gender" value="Man" checked="">
+                        Hombre
+                    </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="gender" id="gender" value="Woman">
+                        Mujer
+                    </label>
+                </div>
+            </fieldset>
         </div>
 
         <div class="msg">{{ msg }}</div>

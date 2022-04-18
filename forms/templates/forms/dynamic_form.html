@@ -6,7 +6,7 @@
 {% extends "cl_layout.html" %}
 {% endif %}
 
-{% block title %}Crear {{formreq}} | Sistema Streaming{% endblock %}
+{% block title %}Crear {{label}} | Sistema Streaming{% endblock %}
 
 {% block body %}
 
@@ -56,7 +56,7 @@
 
 <div id="environment" value="{{environment}}" style="display: none;"> </div>
 
-<h2>Crear {{formreq}} </h2>
+<h2>Crear {{label}} </h2>
 
 <div class="card card-body">
     <form action ="/forms/add/{{form}}-{{formreq}}" method="POST" enctype="multipart/form-data" >
@@ -122,7 +122,7 @@
 
                     <!--DATE-->
                     {% elif i.type == 'date' %}
-                        <label for="{{i.name}}" class="form-label">{{i.label}}</label>
+                        <label for="{{i.name}}" class="form-label">{{i.label}}</label> <br>
                         <input type="{{i.type}}" name="{{i.name}}" data-date="" data-date-format="DD/MM/YYYY" value="{{i.value}}">
 
                     <!--CHECKBOX-->

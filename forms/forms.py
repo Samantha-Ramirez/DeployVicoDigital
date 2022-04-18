@@ -107,6 +107,7 @@ def dynamic_form(form, formreq):
     # GENERAL
     data, f = get_json_form(form)
     attrb = data[formreq]['attributes']
+    label = data[formreq]['label']
     payDict = {}
     for i in attrb:
         # Select
@@ -140,7 +141,7 @@ def dynamic_form(form, formreq):
             i['value'] = get_date()
 
     f.close()
-    return render_template('forms/dynamic_form.html', attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'], environment = environment)
+    return render_template('forms/dynamic_form.html', attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'], environment = environment, label = label)
 
 @forms_bp.route('/add/<form>-<formreq>', methods=['GET', 'POST'])
 def add(form, formreq):
@@ -363,6 +364,7 @@ def add_payment_method(name, id):
 def edit(form, formreq, id):
     data, f = get_json_form(form)
     attrb = data[formreq]['attributes']
+    label = data[formreq]['label']
     query = 'SELECT * FROM ' + formreq + ' WHERE id = ' + id
     cur = mysql.connection.cursor()
     cur.execute(query)
@@ -402,7 +404,7 @@ def edit(form, formreq, id):
             i['value'] = get_date() 
     
     f.close()
-    return render_template('forms/edit.html', rowToEdit = formData[0], attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'])
+    return render_template('forms/edit.html', rowToEdit = formData[0], attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'], label = label)
 
 @forms_bp.route('/update/<form>-<formreq>/<id>', methods=['GET', 'POST'])
 def update(form, formreq, id):

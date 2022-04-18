@@ -35,6 +35,7 @@ def dynamic_table(form, formreq):
     if 'loggedin' in session:
         data, f = get_json_form(form)
         attrb = data[formreq]['attributes']
+        label = data[formreq]['label']
         query = data[formreq]['query']
         if formreq == 'client' and session['user_type'] == 'admin':
             query = "SELECT cl.id, sl.username, cl.username, cl.phone, cl.email, cl.password FROM client cl, seller sl WHERE cl.user = sl.id"
@@ -62,7 +63,7 @@ def dynamic_table(form, formreq):
             index = index + 1
 
         return render_template('tables/dynamic_table.html', formreq = formreq, attrb = attrb, tableData = tableData, 
-        fileIndex = fileIndex, form = form, user_type = session['user_type'], environment = environment)
+        fileIndex = fileIndex, form = form, user_type = session['user_type'], environment = environment, label = label)
         
         f.close()
     return redirect('/auth/login')

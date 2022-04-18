@@ -26,16 +26,16 @@ data = json.load(f)
 def login():
     msg = ''
     parent_id = None
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
-        username = request.form['username']
+    if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+        email = request.form['email']
         password = request.form['password']
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM seller WHERE username = %s AND password = %s', (username, password,))
+        cur.execute('SELECT * FROM seller WHERE email = %s AND password = %s', (email, password,))
         mysql.connection.commit()
         account = cur.fetchone()
         x = 'seller'
         if account == None:
-            cur.execute('SELECT * FROM client WHERE username = %s AND password = %s', (username, password,))
+            cur.execute('SELECT * FROM client WHERE email = %s AND password = %s', (email, password,))
             mysql.connection.commit()
             account = cur.fetchone()
             x = 'client'
@@ -66,7 +66,7 @@ def logout():
 @auth_bp.route('/signup_seller/<parent_id>', methods=['GET', 'POST'])
 def signup_seller(parent_id):
     msg = ''
-    if request.method == 'POST' and 'username' in request.form and 'email' in request.form and 'password' in request.form and 'phone' in request.form and 'ci' in request.form and 'facebook' in request.form and 'instagram' in request.form:
+    if request.method == 'POST' and 'username' in request.form and 'email' in request.form and 'password' in request.form and 'phone' in request.form and 'ci' in request.form:
         attrb = data['seller']['attributes']
         username = request.form['username']
         email = request.form['email']
@@ -75,27 +75,24 @@ def signup_seller(parent_id):
         for i in attrb:
             if i['name'] == 'user_type':
                 into.append(i['name']) 
-                if request.form['email'] == 'yobell@gmail.com':
-                    values.append('"'+ 'admin' + '"')
-                else:
-                    values.append('"'+ 'seller' + '"')
+                values.append('"'+ 'seller' + '"')
                 
             elif i['name'] == 'parent_id' and parent_id != 'None':
                 into.append(i['name']) 
                 values.append(parent_id)
 
-            elif i['type'] == 'checkbox' and i['label'] != None:
-                checkbox = request.form.getlist(i['name'])
-                string = ', '.join(checkbox)
+            elif i['type'] == 'radio' and i['label'] != None:
+                radio = request.form.getlist(i['name'])
+                string = ', '.join(radio)
                 into.append(i['name']) 
                 values.append('"' + string + '"')
 
-            elif i['type'] != 'hidden' and i['type'] != 'checkbox':
+            elif i['type'] != 'hidden' and i['type'] != 'radio':
                 into.append(i['name']) 
                 values.append('"' + request.form[i['name']] + '"') 
         
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM seller WHERE username = %s', (username,))
+        cur.execute('SELECT * FROM seller WHERE email = %s', (email,))
         mysql.connection.commit()
         account = cur.fetchone()
 
@@ -111,6 +108,7 @@ def signup_seller(parent_id):
             cur.execute(query)
             mysql.connection.commit()
             msg = 'Te registraste exitosamente!'
+            return redirect('/auth/login')
 
     elif request.method == 'POST':
         msg = 'Por favor completa el formulario!'
@@ -137,7 +135,7 @@ def signup_client():
                 values.append('"' + request.form[i['name']] + '"') 
         
         cur = mysql.connection.cursor()
-        cur.execute('SELECT * FROM client WHERE username = %s', (username,))
+        cur.execute('SELECT * FROM client WHERE email = %s', (email,))
         mysql.connection.commit()
         account = cur.fetchone()
 
@@ -153,6 +151,7 @@ def signup_client():
             cur.execute(query)
             mysql.connection.commit()
             msg = 'Te registraste exitosamente!'
+            return redirect('/auth/login')
 
     elif request.method == 'POST':
         msg = 'Por favor completa el formulario!'
