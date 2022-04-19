@@ -76,7 +76,7 @@
                         {% if formreq == 'request' and i.name == 'client_id' and user_type != 'client' %}
                             <label for="{{i.name}}" class="form-label">{{i.label}}</label>
                             <select name="{{i.name}}" class="form-control">
-                                <option value="{{id}}">Yo</option>
+                                <option value="{{id}}">Mi persona</option>
                                 {% for o in i.options %}
                                     <option value="{{o.0}}">{{o.2}}</option>
                                 {% endfor %}        
