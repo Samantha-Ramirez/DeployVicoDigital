@@ -8,9 +8,6 @@
         {"type":"text", "label":"Nombre", "name":"name", "normal":"yes"},
         {"type":"url", "label":"URL", "name":"url", "normal":"yes"},
         {"type":"number", "label":"Pantallas", "name":"screen_amount", "normal":"yes"},
-        {"type":"date", "label":"Fecha de inicio", "name":"start_date", "normal":"no"},
-        {"type":"date", "label":"Fecha de fin", "name":"end_date", "normal":"no"},
-        {"type":"hidden", "label":"Duracion", "name":"duration"},
         {"type":"file", "label":"Logo", "name":"file_name", "normal":"no"}
     ]}, 
     "supplier": {
@@ -32,13 +29,15 @@
     ]},  
     "streaming_account": {
         "label":"Cuentas streaming",
-        "query":"SELECT sa.id, sa.user, sp.name, sup.name, sa.date, sa.email, sa.password FROM streaming_account sa, platform sp,supplier sup WHERE sa.select_platform = sp.id AND sa.select_supplier = sup.id ORDER BY sa.id ASC",
+        "query":"SELECT sa.id, sa.user, sp.name, sup.name, sa.start_date, sa.end_date, sa.duration, sa.email, sa.password FROM streaming_account sa, platform sp,supplier sup WHERE sa.select_platform = sp.id AND sa.select_supplier = sup.id ORDER BY sa.id ASC",
         "attributes":[
         {"type":"hidden", "name":"id"},
         {"type":"hidden", "name":"user"},
         {"type":"select", "label":"Plataforma", "name":"select_platform", "selectTable":"platform", "normal":"no"},
         {"type":"select", "label":"Proveedor", "name":"select_supplier", "selectTable":"supplier", "normal":"no"},
-        {"type":"date", "label":"Fecha", "name":"date", "normal":"no"},
+        {"type":"date", "label":"Fecha de inicio", "name":"start_date", "normal":"no"},
+        {"type":"date", "label":"Fecha de fin", "name":"end_date", "normal":"no"},
+        {"type":"hidden", "label":"Duracion", "name":"duration"},
         {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
         {"type":"text", "label":"Clave", "name":"password", "normal":"yes"},
         {"type":"hidden", "name":"last_screens"}
@@ -55,7 +54,7 @@
         {"type":"password", "label":"Clave", "name":"password", "normal":"yes"},
         {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes"},
         {"type":"text", "label":"CI", "name":"ci", "normal":"yes"},
-        {"type":"radio", "label":null, "name":"gender", "value":"Man", "normal":"no"},
+        {"type":"radio", "label":"Genero", "name":"gender", "value":"Man", "normal":"no"},
         {"type":"radio", "label":null, "name":"gender", "value":"Woman", "normal":"no"}
     ]}, 
     "payment_method": {

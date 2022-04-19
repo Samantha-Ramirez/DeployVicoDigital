@@ -67,9 +67,9 @@
                     {% if i.normal == 'yes' %}
                         <label for="{{i.name}}" class="form-label">{{i.label}}</label>
                         {% if i.placeholder != None %}
-                            <input type="{{i.type}}" name="{{i.name}}" placeholder="{{i.placeholder}}" class="form-control">
+                            <input type="{{i.type}}" name="{{i.name}}" placeholder="{{i.placeholder}}" class="form-control" required>
                         {% else %}
-                            <input type="{{i.type}}" name="{{i.name}}" class="form-control">
+                            <input type="{{i.type}}" name="{{i.name}}" class="form-control" required>
                         {% endif %}
 
                     <!--SELECT-->
@@ -77,7 +77,7 @@
                         {% if formreq == 'request' and i.name == 'client_id' and user_type != 'client' %}
                             <label for="{{i.name}}" class="form-label">{{i.label}}</label>
                             <select name="{{i.name}}" class="form-control">
-                                <option value="{{id}}">Yo</option>
+                                <option value="{{id}}">Mi persona</option>
                                 {% for o in i.options %}
                                     <option value="{{o.0}}">{{o.2}}</option>
                                 {% endfor %}        
@@ -94,7 +94,7 @@
                                 </div>
                                 <div id="checkboxes" class="form-check">
                                     {% for o in i.options %}
-                                        <label for="{{o.3}}"><input type="checkbox" value="{{o.3}}" class="form-check-input" name="{{i.name}}">
+                                        <label for="{{o.3}}"><input type="checkbox" value="{{o.3}}" class="form-check-input" name="{{i.name}}" required>
                                             {{o.1}} | {{o.2}}
                                         </label>
                                     {% endfor %}      
@@ -123,7 +123,7 @@
                     <!--DATE-->
                     {% elif i.type == 'date' %}
                         <label for="{{i.name}}" class="form-label">{{i.label}}</label> <br>
-                        <input type="{{i.type}}" name="{{i.name}}" data-date="" data-date-format="DD/MM/YYYY" value="{{i.value}}">
+                        <input type="{{i.type}}" name="{{i.name}}" data-date="" data-date-format="DD/MM/YYYY" value="{{i.value}}" required>
 
                     <!--CHECKBOX-->
                     {% elif i.type == 'checkbox' %}
@@ -131,14 +131,34 @@
                             <label id="{{i.label}}" for="{{i.name}}" class="form-label">{{i.label}}</label>
                         {% endif %}
                             <div class="form-check">
-                                <input type="{{i.type}}" name="{{i.name}}" value="{{i.value}}" class="form-check-input">
+                                <input type="{{i.type}}" name="{{i.name}}" value="{{i.value}}" class="form-check-input" required>
                                 <label for="{{i.value}}">{{i.value}}</label> 
                             </div>
 
                     <!--FILE-->
                     {% elif i.type == 'file' %}
                         <label for="{{i.name}}" class="form-label">{{i.label}}</label>
-                        <input type="{{i.type}}" class="form-control" name="{{i.name}}" accept="image/*">    
+                        <input type="{{i.type}}" class="form-control" name="{{i.name}}" accept="image/*" required>    
+
+                    <!--RADIO-->
+                    {% elif i.type == 'radio' %}
+                        {% if i.label != None %}
+                            <label for="gender" class="container">G&eacute;nero</label>
+                            <fieldset class="form-group">
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="gender" id="gender" value="Hombre" checked="">
+                                        Hombre
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="gender" id="gender" value="Mujer">
+                                        Mujer
+                                    </label>
+                                </div>
+                            </fieldset>
+                        {% endif %}
                     {% endif %}      
                 </div>
             {% endif %}

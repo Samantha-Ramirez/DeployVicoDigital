@@ -41,7 +41,7 @@ def form_select(formreq, table, user_type = None, id = None):
         query = 'SELECT * FROM client WHERE user = ' + str(id)
 
     elif formreq == 'request' and table == 'streaming_account':
-        query = 'SELECT sa.id, pl.name, pl.duration, sa.select_platform FROM platform pl, streaming_account sa WHERE sa.select_platform = pl.id and sa.last_screens != 0'
+        query = 'SELECT sa.id, pl.name, sa.duration, sa.select_platform FROM platform pl, streaming_account sa WHERE sa.select_platform = pl.id and sa.last_screens != 0'
     
     elif formreq == 'request' and id == 'dy':
         if user_type == 'client':
@@ -176,15 +176,15 @@ def add(form, formreq):
                         values.append('"' + string + '"')
 
                 elif i['type'] != 'hidden' and i['name'] != 'platform':
-                    if formreq == 'platform' and i['name'] == 'start_date':
+                    if formreq == 'streaming_account' and i['name'] == 'start_date':
                         start = request.form[i['name']]
-                    elif formreq == 'platform' and i['name'] == 'end_date':
+                    elif formreq == 'streaming_account' and i['name'] == 'end_date':
                         end = request.form[i['name']]
 
                     into.append(i['name']) 
                     values.append('"' + request.form[i['name']] + '"')
                 
-                elif formreq == 'platform' and i['name'] == 'duration':
+                elif formreq == 'streaming_account' and i['name'] == 'duration':
                     duration = platform_duration(start, end)
                     into.append(i['name']) 
                     values.append('"' + duration + '"')
@@ -271,7 +271,7 @@ def add(form, formreq):
             mysql.connection.commit()
             plData = cur.fetchone()
             
-            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(plData[5]) + '"', '"' + str(plData[6]) + '"', '"' + str(plData[7]) + '"','"' + plData[3] + '"', '"' + saData[5] + '"', '"' + saData[6] + '"']
+            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(saData[4]) + '"', '"' + str(saData[5]) + '"', '"' + str(saData[6]) + '"','"' + plData[3] + '"', '"' + saData[7] + '"', '"' + saData[8] + '"']
             for x in range(1, plData[4] + 1):
                 values1.insert(1, '"' + str(x) + '"')
                 sep = ', '
@@ -437,15 +437,15 @@ def update(form, formreq, id):
                         string1 = i['name'] + ' = ' + '"' + string + '"'
                         values.append(string1)
 
-                elif i['type'] != 'hidden' and i['name'] != 'platform':
-                    if formreq == 'platform' and i['name'] == 'start_date':
+                elif i['type'] != 'hidden' and i['name'] != 'streaming_account':
+                    if formreq == 'streaming_account' and i['name'] == 'start_date':
                         start = request.form[i['name']]
-                    elif formreq == 'platform' and i['name'] == 'end_date':
+                    elif formreq == 'streaming_account' and i['name'] == 'end_date':
                         end = request.form[i['name']]
                     string = i['name'] + ' = ' + '"' + request.form[i['name']] + '"'
                     values.append(string)
 
-                elif formreq == 'platform' and i['name'] == 'duration':
+                elif formreq == 'streaming_account' and i['name'] == 'duration':
                     duration = platform_duration(start, end)
                     string = i['name'] + ' = ' + '"' + duration + '"'
                     values.append(string)
@@ -484,12 +484,12 @@ def update(form, formreq, id):
             cur.execute(query4)
             mysql.connection.commit()
             
-            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(plData[5]) + '"', '"' + str(plData[6]) + '"', '"' + str(plData[7]) + '"','"' + plData[3] + '"', '"' + saData[5] + '"', '"' + saData[6] + '"']
+            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(saData[4]) + '"', '"' + str(saData[5]) + '"', '"' + str(saData[6]) + '"','"' + plData[3] + '"', '"' + saData[7] + '"', '"' + saData[8] + '"']
             for x in range(1, plData[4] + 1):
                 values1.insert(1, '"' + str(x) + '"')
                 sep = ', '
-                query5 = 'INSERT INTO screen (account_id, number, platform, start_date, end_date, duration, url, email, password) VALUES (' + sep.join(values1) + ')'
-                cur.execute(query5)
+                query4 = 'INSERT INTO screen (account_id, number, platform, start_date, end_date, duration, url, email, password) VALUES (' + sep.join(values1) + ')'
+                cur.execute(query4)
                 mysql.connection.commit()
                 del values1[1]
 

@@ -119,7 +119,7 @@ def signup_seller(parent_id):
 def signup_client():
     msg = ''
     parent_id = None
-    if request.method == 'POST' and 'username' in request.form and 'email' in request.form and 'password' in request.form and 'phone':
+    if request.method == 'POST' and 'username' in request.form and 'email' in request.form and 'password' in request.form:
         attrb = data['client']['attributes']
         username = request.form['username']
         email = request.form['email']
@@ -157,5 +157,36 @@ def signup_client():
         msg = 'Por favor completa el formulario!'
 
     return render_template('auth/signup_client.html', msg = msg, parent_id = parent_id)
+
+@auth_bp.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    if request.method == 'POST' and 'email' in request.form and 'newPassword' in request.form and 'confirmPassword' in request.form:
+        email = request.form['email']
+        newPassword = request.form['newPassword']
+        confirmPassword = request.form['confirmPassword']
+        if(newPassword == confirmPassword):
+            cur = mysql.connection.cursor()
+            cur.execute('SELECT * FROM seller WHERE email = %s', (email,))
+            mysql.connection.commit()
+            account = cur.fetchone()
+            if account: 
+                cur.execute('UPDATE seller SET password = %s WHERE email = %s', (newPassword, email))
+                mysql.connection.commit()
+            elif account == None:
+                cur.execute('SELECT * FROM client WHERE email = %s', (email,))
+                mysql.connection.commit()
+                account = cur.fetchone()
+                if account:
+                    cur.execute('UPDATE client SET password = %s WHERE email = %s', (newPassword, email))
+                    mysql.connection.commit()
+                else:
+                    msg = 'Email incorrecto'
+            msg = 'Contraseña restaurada'
+            return render_template('auth/change_password.html', msg = msg)
+        else:
+            msg = 'Las contraseñas no coinciden'
+            return render_template('auth/change_password.html', msg = msg)
+    else: 
+        return render_template('auth/change_password.html')
 
 f.close()
