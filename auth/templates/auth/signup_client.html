@@ -11,8 +11,8 @@
       Registrarse 
     </a>
     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-      <li><a class="dropdown-item" href="/auth/signup_seller/{{parent_id}}">Como vendedor</a></li>
-      <li><a class="dropdown-item" href="/auth/signup_client" class="active">Como cliente</a></li>
+      <li><a class="dropdown-item" href="/auth/signup/seller/{{parent_id}}">Como vendedor</a></li>
+      <li><a class="dropdown-item" href="/auth/signup/client/{{parent_id}}" class="active">Como cliente</a></li>
     </ul>
 </li>
 {% endblock %}
@@ -20,7 +20,7 @@
 {% block body %}
 <div class="register">
     <h1>Reg&iacute;strate como cliente</h1>
-    <form action="/auth/signup_client" method="POST" autocomplete="off">
+    <form action="/auth/signup/client/{{parent_id}}" method="POST" autocomplete="off">
         <div class="form-group">
             <input type="text" name="username" placeholder="Nombre de usuario" id="username" required>
         </div>

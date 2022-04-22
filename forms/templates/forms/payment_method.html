@@ -1,9 +1,7 @@
 {% if user_type == 'admin' %}
 {% extends "ad_layout.html" %}
-{% elif user_type == 'seller' %}
-{% extends "sl_layout.html" %}
-{% elif user_type == 'client' %}
-{% extends "cl_layout.html" %}
+{% elif user_type == 'seller' or user_type == 'client' %}
+{% extends "us_layout.html" %}
 {% endif %}
 
 {% block title %} Crear m&eacute;todo de pago | Sistema Streaming{% endblock %}

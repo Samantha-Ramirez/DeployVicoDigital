@@ -1,9 +1,7 @@
 {% if user_type == 'admin' %}
 {% extends "ad_layout.html" %}
-{% elif user_type == 'seller' %}
-{% extends "sl_layout.html" %}
-{% elif user_type == 'client' %}
-{% extends "cl_layout.html" %}
+{% elif user_type == 'seller' or user_type == 'client' %}
+{% extends "us_layout.html" %}
 {% endif %}
 
 {% block title %}{{label}} | Sistema Streaming{% endblock %}
@@ -29,7 +27,7 @@
             <thead>
                 <tr>
                     {% for i in attrb %}
-                        {% if (i.type != 'hidden' and i.label != None) or i.name == 'duration' or (i.name == 'user' and formreq == 'client' and user_type == 'admin') %}
+                        {% if ((i.type != 'hidden' and i.label != None) and (i.name != 'password' and formreq != 'streaming_account')) or i.name == 'duration' %}
                             <th scope="col">{{ i.label }}</th>
                         {% endif %}
                     {% endfor %}
@@ -47,17 +45,16 @@
                                 <td><img src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{i}}" width = "50" height = "50"></td>
                             {% endif %}
                 
-                        {% elif formreq != 'seller' and  formreq != 'client' and loop.index != 1 and loop.index != 2 %}
+                        {% elif formreq != 'seller' and (loop.index != 1 and loop.index != 2) %}
                             <td>{{ i }}</td>
 
-                        {% elif formreq == 'client' and loop.index != 1 %}
+                        {% elif formreq == 'seller' and (loop.index != 1 and loop.index != 2 and loop.index != 3 and loop.index != 6) %}
                             <td>{{ i }}</td>
 
-                        {% elif formreq == 'seller' and loop.index != 1 and loop.index != 2 and loop.index != 3 %}
-                            <td>{{ i }}</td>
                         {% endif %}
                     
                     {% endfor %}
+                    
                     {% if formreq != 'payment_method' %}
                         <td>
                             <a href="/forms/edit/{{form}}-{{formreq}}/{{d.0}}" class="btn btn-light">

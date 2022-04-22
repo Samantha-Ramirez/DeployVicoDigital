@@ -1,12 +1,10 @@
 {% if user_type == 'admin' %}
 {% extends "ad_layout.html" %}
-{% elif user_type == 'seller' %}
-{% extends "sl_layout.html" %}
-{% elif user_type == 'client' %}
-{% extends "cl_layout.html" %}
+{% elif user_type == 'seller' or user_type == 'client' %}
+{% extends "us_layout.html" %}
 {% endif %}
 
-{% block title %}Crear {{label}} | Sistema Streaming{% endblock %}
+{% block title %}{{type}} {{label}} | Sistema Streaming{% endblock %}
 
 {% block body %}
 
@@ -56,10 +54,10 @@
 
 <div id="environment" value="{{environment}}" style="display: none;"> </div>
 
-<h2>Crear {{label}} </h2>
+<h2>Crear {{label}}</h2>
 
 <div class="card card-body">
-    <form action ="/forms/add/{{form}}-{{formreq}}" method="POST" enctype="multipart/form-data" >
+    <form action ="{{link}}" method="POST" enctype="multipart/form-data">
         {% for i in attrb %}
             {% if i.type != 'hidden' %}
                 <div class="form-group">
@@ -74,16 +72,7 @@
 
                     <!--SELECT-->
                     {% elif i.type == 'select' %}
-                        {% if formreq == 'request' and i.name == 'client_id' and user_type != 'client' %}
-                            <label for="{{i.name}}" class="form-label">{{i.label}}</label>
-                            <select name="{{i.name}}" class="form-control">
-                                <option value="{{id}}">Mi persona</option>
-                                {% for o in i.options %}
-                                    <option value="{{o.0}}">{{o.2}}</option>
-                                {% endfor %}        
-                            </select> 
-
-                        {% elif formreq == 'request' and i.name == 'platform' %}
+                        {% if formreq == 'request' and i.name == 'platform' %}
                             <label for="{{i.name}}" class="form-label">{{i.label}}</label>
                             <div class="multiselect">
                                 <div class="selectBox" onclick="showCheckboxes()">
@@ -111,7 +100,7 @@
                             </select> 
                             <div id="paymentData"></div>
 
-                        {% elif i.name != 'client_id' and user_type != 'client' %}
+                        {% else %}
                             <label for="{{i.name}}" class="form-label">{{i.label}}</label>
                             <select name="{{i.name}}" class="form-control">
                                 {% for o in i.options %}

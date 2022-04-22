@@ -44,7 +44,7 @@
     ]},
     "seller": {
         "label":"Vendedores",
-        "query":"SELECT * FROM seller WHERE user_type = 'seller' ORDER BY id ASC",
+        "query":"SELECT * FROM user WHERE user_type = 'seller' ORDER BY id ASC",
         "attributes":[
         {"type":"hidden", "name":"id"},
         {"type":"hidden", "name":"user_type"},
@@ -69,14 +69,14 @@
     ]},
     "client": {
         "label":"Clientes",
-        "query":"SELECT id, username, phone, email, password FROM client WHERE user = ",
+        "query":"SELECT id, user_type, username, email, phone FROM user WHERE user_type = 'client'",
         "attributes":[
         {"type":"hidden", "name":"id"},
-        {"type":"hidden", "label":"Vendedor", "name":"user"},
+        {"type":"hidden", "name":"user_type"},
         {"type":"text", "label":"Nombre de usuario", "name":"username", "normal":"yes"},
-        {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes"},
         {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
-        {"type":"password", "label":"Clave", "name":"password", "normal":"yes"}
+        {"type":"password", "label":"Clave", "name":"password", "normal":"yes"},
+        {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes"}
         ]
     },
     "request": {
@@ -84,9 +84,7 @@
         "query":"",
         "attributes":[
         {"type":"hidden", "name":"id"},
-        {"type":"hidden", "name":"seller_id"},
-        {"type":"select", "label":"Selecciona el cliente", "name":"client_id", "selectTable":"client", "normal":"no"},
-        {"type":"hidden", "name":"user_type"},
+        {"type":"hidden", "name":"user"},
         {"type":"hidden", "name":"username"},
         {"type":"hidden", "name":"date"},
         {"type":"select", "label":"Plataforma", "name":"platform", "selectTable":"streaming_account", "normal":"no"},

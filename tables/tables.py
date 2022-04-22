@@ -11,7 +11,6 @@ tables_bp = Blueprint('tables_bp', __name__,
 # PAGE'S REQUIREMENTS
 app, mysql, environment = create_app()
 
-
 def get_json_form(form):
     if form == 'st':
         if environment == 'development':
@@ -37,9 +36,8 @@ def dynamic_table(form, formreq):
         attrb = data[formreq]['attributes']
         label = data[formreq]['label']
         query = data[formreq]['query']
-        if formreq == 'client' and session['user_type'] == 'admin':
-            query = "SELECT cl.id, sl.username, cl.username, cl.phone, cl.email, cl.password FROM client cl, seller sl WHERE cl.user = sl.id"
-        elif form == 'dy' or (formreq == 'client' and session['user_type'] != 'admin'):
+
+        if form == 'dy':
             query = query + str(session['id'])
             
         cur = mysql.connection.cursor()
@@ -62,8 +60,7 @@ def dynamic_table(form, formreq):
                     x = x + 1
             index = index + 1
 
-        return render_template('tables/dynamic_table.html', formreq = formreq, attrb = attrb, tableData = tableData, 
-        fileIndex = fileIndex, form = form, user_type = session['user_type'], environment = environment, label = label)
-        
+        return render_template('tables/dynamic_table.html', formreq = formreq, attrb = attrb, tableData = tableData, fileIndex = fileIndex, form = form, user_type = session['user_type'], environment = environment, label = label)
         f.close()
+        
     return redirect('/auth/login')

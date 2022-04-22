@@ -64,14 +64,14 @@ def index():
     if 'loggedin' in session:
         if session['user_type'] == 'admin':
             # REQUEST DATA
-            query = 'SELECT rq.id, rq.date, sl.username, rq.username, rq.user_type , pl.name, sc.number, rq.receipt FROM request rq, screen sc, seller sl, platform pl WHERE sc.id = (SELECT MIN(id) FROM screen WHERE platform = rq.platform AND client IS NULL) AND sl.id = rq.seller_id AND pl.id = sc.platform AND rq.status = "not_verified" ORDER BY rq.id ASC'
+            query = 'SELECT rq.id, rq.date, us.username, rq.username, rq.user_type , pl.name, sc.number, rq.receipt FROM request rq, screen sc, user us, platform pl WHERE sc.id = (SELECT MIN(id) FROM screen WHERE platform = rq.platform AND client IS NULL) AND us.id = rq.seller_id AND pl.id = sc.platform AND rq.status = "not_verified" ORDER BY rq.id ASC'
             cur = mysql.connection.cursor()
             cur.execute(query)
             mysql.connection.commit()
             reqData = cur.fetchall()
 
             # ACTIVATED SCREENS DATA
-            query1 = 'SELECT pl.file_name, pl.name, sc.duration, sc.end_date, cl.username, cl.phone, sc.email, sc.id FROM platform pl, screen sc, client cl WHERE sc.platform = pl.id AND sc.client = cl.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
+            query1 = 'SELECT pl.file_name, pl.name, sc.duration, sc.end_date, us.username, us.phone, sc.email, sc.id FROM platform pl, screen sc, user us WHERE sc.platform = pl.id AND sc.client = us.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
             cur.execute(query1)
             mysql.connection.commit()
             scData = list(cur.fetchall())
@@ -79,16 +79,18 @@ def index():
                 
             return render_template('admin.html', username = session['username'], user_type = session['user_type'], reqData = reqData, scData = scData, environment = environment)
         
-        elif session['user_type'] == 'seller':
-            query = 'SELECT pl.file_name, pl.name, sc.duration, sc.end_date, cl.username, cl.phone, sc.email, sc.id FROM platform pl, screen sc, client cl WHERE sc.platform = pl.id AND sc.client = cl.id AND sc.client IS NOT NULL AND cl.user = ' + str(session['id']) + ' ORDER BY sc.start_date'
+        elif session['user_type'] == 'seller' or session['user_type'] == 'client':
+            '''
+            query = 'SELECT pl.file_name, pl.name, sc.duration, sc.end_date, us.username, us.phone, sc.email, sc.id FROM platform pl, screen sc, user us WHERE sc.platform = pl.id AND sc.client = us.id AND sc.client IS NOT NULL AND us.user = ' + str(session['id']) + ' AND ORDER BY sc.start_date'
             cur = mysql.connection.cursor()
             cur.execute(query)
             mysql.connection.commit()
             scData = list(cur.fetchall())
             scData = screenData(scData)
+            # Cambiar'''
 
-            return render_template('seller.html', username = session['username'], scData = scData, environment = environment)
-        
+            return render_template('user.html', username = session['username'], scData = scData, environment = environment)
+        '''
         elif session['user_type'] == 'client':
             query = 'SELECT sc.*, pl.name FROM screen sc, platform pl WHERE sc.platform = pl.id AND client = ' + str(session['id'])
             cur = mysql.connection.cursor()
@@ -101,22 +103,27 @@ def index():
                 sc[5] = datetime.datetime.strptime(str(sc[5]), "%Y-%m-%d").strftime('%d-%m-%Y')
                 scData[x] = sc
                 x = x + 1
-            
-            return render_template('client.html', username = session['username'], scData = scData, environment = environment)
+            # Arreglar tambien
+            return render_template('client.html', username = session['username'], scData = scData, environment = environment)'''
 
     return redirect('/auth/login')
 
 @app.route('/profile')
 def profile():
     if 'loggedin' in session:
+        # DATOS PERSONALES 
         cur = mysql.connection.cursor()
-        if session['user_type'] == 'admin' or session['user_type'] == 'seller':
-            query = 'SELECT username, phone, email, password FROM seller WHERE id = ' + str(session['id'])
-        else:
-            query = 'SELECT username, phone, email, password FROM client WHERE id = ' + str(session['id'])
+        query = 'SELECT username, phone, email, password FROM user WHERE id = ' + str(session['id'])
         cur.execute(query)
         mysql.connection.commit()
         account = cur.fetchone()
+
+        # SELLS TEAM
+        query = 'SELECT * FROM user WHERE parent_id = ' + str(session['id'])
+        cur = mysql.connection.cursor()
+        cur.execute(query)
+        mysql.connection.commit()
+        dataTeam = cur.fetchall()
 
         # REFERENCE LINK
         id = str(session['id'])
@@ -124,7 +131,8 @@ def profile():
             link = 'http://127.0.0.1:3000/referencelink'
         else: 
             link = 'http://vicoweb.pythonanywhere.com/referencelink'
-        return render_template('profile.html', account = account, link = link, id =  id, user_type = session['user_type'])
+
+        return render_template('profile.html', account = account, link = link, id =  id, user_type = session['user_type'], dataTeam = dataTeam)
     
     return redirect('/auth/login')
 
@@ -172,7 +180,7 @@ def requests(id, option):
         mysql.connection.commit()
 
         # Create format message
-        query5 = 'SELECT pl.name, pl.screen_amount, sc.*, cl.username, cl.phone FROM screen sc, platform pl, client cl WHERE pl.id = sc.platform AND sc.client = cl.id AND sc.client = ' + str(clData[0])
+        query5 = 'SELECT pl.name, pl.screen_amount, sc.*, us.username, us.phone FROM screen sc, platform pl, user us WHERE pl.id = sc.platform AND sc.client = us.id AND sc.client = ' + str(clData[0])
         cur.execute(query5)
         mysql.connection.commit()
         scData = cur.fetchone()

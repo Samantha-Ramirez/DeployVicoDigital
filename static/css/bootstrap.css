@@ -707,7 +707,6 @@ progress {
   width: 100%;
   max-width: 100%;
   padding-right: calc(var(--bs-gutter-x) * .5);
-  padding-left: calc(var(--bs-gutter-x) * .5);
   margin-top: var(--bs-gutter-y);
 }
 
@@ -6889,6 +6888,13 @@ fieldset:disabled .btn {
   margin-top: -0.5rem;
   margin-right: -0.5rem;
   margin-bottom: -0.5rem;
+}
+
+.btn-floating i {
+  display: inline-block;
+  width: inherit;
+  color: #fff;
+  text-align: center;
 }
 
 .offcanvas-title {

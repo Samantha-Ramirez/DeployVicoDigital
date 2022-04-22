@@ -37,12 +37,9 @@ def get_json_form(form):
     return data, f
 
 def form_select(formreq, table, user_type = None, id = None):
-    if formreq == 'request' and table == 'client' and user_type != 'client':
-        query = 'SELECT * FROM client WHERE user = ' + str(id)
-
-    elif formreq == 'request' and table == 'streaming_account':
+    if formreq == 'request' and table == 'streaming_account':
         query = 'SELECT sa.id, pl.name, sa.duration, sa.select_platform FROM platform pl, streaming_account sa WHERE sa.select_platform = pl.id and sa.last_screens != 0'
-    
+    #CAMBIAR
     elif formreq == 'request' and id == 'dy':
         if user_type == 'client':
             query = 'SELECT * FROM ' + table + ', client WHERE client.user = ' + table + '.seller_id'
@@ -141,7 +138,10 @@ def dynamic_form(form, formreq):
             i['value'] = get_date()
 
     f.close()
-    return render_template('forms/dynamic_form.html', attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'], environment = environment, label = label)
+    link = '/forms/add/' + str(form) + '-' + str(formreq)
+    type = 'Crear'
+
+    return render_template('forms/dynamic_form.html', attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'], environment = environment, label = label, link = link, type = type)
 
 @forms_bp.route('/add/<form>-<formreq>', methods=['GET', 'POST'])
 def add(form, formreq):
@@ -152,14 +152,15 @@ def add(form, formreq):
         values = []
         if formreq != 'request':
             for i in attrb:
-                if i['name'] == 'user' or (i['name'] == 'seller_id' and formreq != 'request'):
+                # USER
+                if i['name'] == 'user':
                     into.append(i['name']) 
                     values.append('"' + str(session['id']) + '"')
-
-                elif formreq == 'seller' and i['name'] == 'user_type':
-                    into.append(i['name']) 
-                    values.append('"' + 'seller' + '"')
-
+                # USER_TYPE
+                elif (formreq == 'seller' or formreq == 'client') and i['name'] == 'user_type':
+                    into.append(i['name'])
+                    values.append('"' + formreq + '"')
+                # FILE
                 elif i['type'] == 'file':
                     file = request.files[i['name']]
                     fileName = secure_filename(file.filename)
@@ -167,15 +168,16 @@ def add(form, formreq):
                     file.save(route)
                     into.append(i['name']) 
                     values.append('"' + fileName + '"')
-
-                elif i['type'] == 'checkbox':
+                # CHECKBOX AND RADIO
+                elif i['type'] == 'checkbox' or i['type'] == 'radio' :
                     if i['label'] != None:
                         checkbox = request.form.getlist(i['name'])
                         string = ', '.join(checkbox)
                         into.append(i['name']) 
                         values.append('"' + string + '"')
-
+                # GENERAL
                 elif i['type'] != 'hidden' and i['name'] != 'platform':
+                    # START AND END DATE
                     if formreq == 'streaming_account' and i['name'] == 'start_date':
                         start = request.form[i['name']]
                     elif formreq == 'streaming_account' and i['name'] == 'end_date':
@@ -183,12 +185,12 @@ def add(form, formreq):
 
                     into.append(i['name']) 
                     values.append('"' + request.form[i['name']] + '"')
-                
+                # DURATION OF STREAMING ACCOUNT 
                 elif formreq == 'streaming_account' and i['name'] == 'duration':
                     duration = platform_duration(start, end)
                     into.append(i['name']) 
                     values.append('"' + duration + '"')
-                
+                # LAST SCREENS OF STREAMING ACCOUNT 
                 elif formreq == 'streaming_account' and i['name'] == 'last_screens':
                     into.append(i['name']) 
                     q = 'SELECT screen_amount FROM platform WHERE id = ' + request.form['select_platform']
@@ -205,13 +207,13 @@ def add(form, formreq):
             mysql.connection.commit()
             flash('Agregado exitosamente')   
 
+        # CAMBIAR CLIENT 
         elif formreq == 'request':
             #Client id and User type
             into.append('client_id') 
             into.append('user_type')
-            into.append('seller_id')
             into.append('username')
-            query1 = 'SELECT user, username FROM client WHERE id = '
+            query1 = 'SELECT username FROM user WHERE id = '
 
             if session['user_type'] == 'client':
                 values.append('"' + str(session['id']) + '"')
@@ -221,7 +223,7 @@ def add(form, formreq):
                 values.append('"' + request.form['client_id'] + '"')
                 if str(session['id']) == request.form['client_id']:
                     values.append('"' + session['user_type'] + '"')
-                    query1 = 'SELECT parent_id, username FROM seller WHERE id = ' + str(session['id'])
+                    query1 = 'SELECT parent_id, username FROM user WHERE id = ' + str(session['id'])
                 else:
                     values.append('"' + 'client' + '"')
                     query1 = query1 + request.form['client_id']
@@ -404,7 +406,10 @@ def edit(form, formreq, id):
             i['value'] = get_date() 
     
     f.close()
-    return render_template('forms/edit.html', rowToEdit = formData[0], attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'], label = label)
+    link = '/forms/update/' + str(form) + '-' + str(formreq) + '/' + str(formData[0][0])
+    type = 'Editar'
+
+    return render_template('forms/edit.html', rowToEdit = formData[0], attrb = attrb, formreq = formreq, form = form, payDict = payDict, user_type = session['user_type'], id = session['id'], label = label, link = link, type = type)
 
 @forms_bp.route('/update/<form>-<formreq>/<id>', methods=['GET', 'POST'])
 def update(form, formreq, id):
@@ -414,14 +419,15 @@ def update(form, formreq, id):
         values = []
         if formreq != 'request':
             for i in attrb:
-                if i['name'] == 'user' or (i['name'] == 'seller_id' and formreq != 'request'):
+                # USER
+                if i['name'] == 'user':
                     string = i['name'] + ' = ' + '"' + str(session['id']) + '"'
                     values.append(string)
-
-                elif formreq == 'seller' and i['name'] == 'user_type':
-                    string = i['name'] + ' = ' + '"' + 'seller' + '"'
+                # USER_TYPE
+                elif (formreq == 'seller' or formreq == 'client') and i['name'] == 'user_type':
+                    string = i['name'] + ' = ' + '"' + formreq + '"'
                     values.append(string)
-
+                # FILE
                 elif i['type'] == 'file':
                     file = request.files[i['name']]
                     fileName = secure_filename(file.filename)
@@ -429,27 +435,29 @@ def update(form, formreq, id):
                     file.save(route)
                     string = i['name'] + ' = ' + '"' + fileName + '"'
                     values.append(string)
-
-                elif i['type'] == 'checkbox':
+                # CHECKBOX AND RADIO
+                elif i['type'] == 'checkbox' or i['type'] == 'radio' :
                     if i['label'] != None:
                         checkbox = request.form.getlist(i['name'])
                         string = ', '.join(checkbox)
                         string1 = i['name'] + ' = ' + '"' + string + '"'
                         values.append(string1)
-
-                elif i['type'] != 'hidden' and i['name'] != 'streaming_account':
+                # GENERAL
+                elif i['type'] != 'hidden' and i['name'] != 'platform':
+                    # START AND END DATE
                     if formreq == 'streaming_account' and i['name'] == 'start_date':
                         start = request.form[i['name']]
                     elif formreq == 'streaming_account' and i['name'] == 'end_date':
                         end = request.form[i['name']]
+
                     string = i['name'] + ' = ' + '"' + request.form[i['name']] + '"'
                     values.append(string)
-
+                # DURATION OF STREAMING ACCOUNT 
                 elif formreq == 'streaming_account' and i['name'] == 'duration':
                     duration = platform_duration(start, end)
                     string = i['name'] + ' = ' + '"' + duration + '"'
                     values.append(string)
-                    
+                # LAST SCREENS OF STREAMING ACCOUNT 
                 elif formreq == 'streaming_account' and i['name'] == 'last_screens':
                     q = 'SELECT screen_amount FROM platform WHERE id = ' + request.form['select_platform']
                     cur = mysql.connection.cursor()
