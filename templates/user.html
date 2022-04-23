@@ -52,173 +52,72 @@
     <!--CATALOGO-->
     <div class="row">
         <div class="col-md-12" style="padding-left: 0;">
-            <h3>Pantallas disponibles</h3>
-                        <!--Carousel Wrapper-->
+            <!--Carousel Wrapper-->
             <div id="multi-item-example" class="carousel slide carousel-multi-item" data-ride="carousel">
-
                 <!--Controls-->
                 <div class="controls-top">
-                    <a class="btn-floating" href="#multi-item-example" data-slide="prev"><i class="fa fa-chevron-left"></i></a>
-                    <a class="btn-floating" href="#multi-item-example" data-slide="next"><i class="fa fa-chevron-right"></i></a>
+                    <a class="btn-floating" href="#multi-item-example" data-slide="prev">
+                        <i class="fa fa-chevron-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                            </svg>
+                        </i>
+                    </a>
+                    <a class="btn-floating" href="#multi-item-example" data-slide="next">
+                        <i class="fa fa-chevron-right">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                            </svg>
+                        </i>
+                    </a>
                 </div>
                 <!--/.Controls-->
 
                 <!--Indicators-->
                 <ol class="carousel-indicators">
-                <li data-target="#multi-item-example" data-slide-to="0" class="active"></li>
-                <li data-target="#multi-item-example" data-slide-to="1"></li>
-                <li data-target="#multi-item-example" data-slide-to="2"></li>
+                    <li data-target="#multi-item-example" data-slide-to="0" class="active"></li>
+                    <li data-target="#multi-item-example" data-slide-to="1"></li>
+                    <li data-target="#multi-item-example" data-slide-to="2"></li>
                 </ol>
                 <!--/.Indicators-->
-
-                <!--Slides-->
                 <div class="carousel-inner" role="listbox">
-                    <!--First slide-->
-                    <div class="carousel-item active">
-            
-                    <div class="row">
+                    {% for sc in scData %}
+                        {% if loop.first %}
+                            <div class="carousel-item active"> 
+                                <div class="row">       
+                        {% elif (loop.index - 1) % 3 == 0 %}
+                                </div>    
+                            </div>        
+                            <div class="carousel-item">
+                                <div class="row">
+                        {% endif %}              
                         <div class="col-md-4">
-                        <div class="card mb-2">
-                            <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(34).jpg"
-                                alt="Card image cap">
-                            <div class="card-body">
-                            <h4 class="card-title">Card title</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a class="btn btn-primary">Button</a>
+                            <div class="card mb-2">     
+                                {% if environment == 'development' %}
+                                    <img class="card-img-top" src="/forms/static/img/{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                {% else %}
+                                    <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h4 class="card-title">{{sc.0}}</h4>
+                                    <p class="card-text">
+                                        <b>Fecha de inicio: </b>{{sc.1}} <br>
+                                        <b>Fecha de fin: </b>{{sc.2}} <br>
+                                        <b>Duraci&oacute;n: </b>{{sc.3}} <br>
+                                        <b>Precio: </b> 
+                                    </p>
+                                    <a class="btn btn-success" style="display: block; margin: 0 auto;">Comprar</a>
+                                </div>
                             </div>
                         </div>
-                        </div>
-            
-                        <div class="col-md-4 clearfix d-none d-md-block">
-                        <div class="card mb-2">
-                            <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(18).jpg"
-                                alt="Card image cap">
-                            <div class="card-body">
-                            <h4 class="card-title">Card title</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a class="btn btn-primary">Button</a>
+                        {% if loop.last %}            
+                                </div>
                             </div>
-                        </div>
-                        </div>
-            
-                        <div class="col-md-4 clearfix d-none d-md-block">
-                        <div class="card mb-2">
-                            <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(35).jpg"
-                                alt="Card image cap">
-                            <div class="card-body">
-                            <h4 class="card-title">Card title</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a class="btn btn-primary">Button</a>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-            
-                    </div>
-                    <!--/.First slide-->
-            
-                    <!--Second slide-->
-                    <div class="carousel-item">
-            
-                    <div class="row">
-                        <div class="col-md-4">
-                        <div class="card mb-2">
-                            <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/City/4-col/img%20(60).jpg"
-                                alt="Card image cap">
-                            <div class="card-body">
-                            <h4 class="card-title">Card title</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a class="btn btn-primary">Button</a>
-                            </div>
-                        </div>
-                        </div>
-            
-                        <div class="col-md-4 clearfix d-none d-md-block">
-                        <div class="card mb-2">
-                            <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/City/4-col/img%20(47).jpg"
-                                alt="Card image cap">
-                            <div class="card-body">
-                            <h4 class="card-title">Card title</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a class="btn btn-primary">Button</a>
-                            </div>
-                        </div>
-                        </div>
-            
-                        <div class="col-md-4 clearfix d-none d-md-block">
-                        <div class="card mb-2">
-                            <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/City/4-col/img%20(48).jpg"
-                                alt="Card image cap">
-                            <div class="card-body">
-                            <h4 class="card-title">Card title</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a class="btn btn-primary">Button</a>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-            
-                    </div>
-                    <!--/.Second slide-->
-            
-                    <!--Third slide-->
-                    <div class="carousel-item">
-            
-                    <div class="row">
-                        <div class="col-md-4">
-                        <div class="card mb-2">
-                            <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/Food/4-col/img%20(53).jpg"
-                                alt="Card image cap">
-                            <div class="card-body">
-                            <h4 class="card-title">Card title</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a class="btn btn-primary">Button</a>
-                            </div>
-                        </div>
-                        </div>
-            
-                        <div class="col-md-4 clearfix d-none d-md-block">
-                        <div class="card mb-2">
-                            <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/Food/4-col/img%20(45).jpg"
-                                alt="Card image cap">
-                            <div class="card-body">
-                            <h4 class="card-title">Card title</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a class="btn btn-primary">Button</a>
-                            </div>
-                        </div>
-                        </div>
-            
-                        <div class="col-md-4 clearfix d-none d-md-block">
-                        <div class="card mb-2">
-                            <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/Food/4-col/img%20(51).jpg"
-                                alt="Card image cap">
-                            <div class="card-body">
-                            <h4 class="card-title">Card title</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                                card's content.</p>
-                            <a class="btn btn-primary">Button</a>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-            
-                    </div>
-                    <!--/.Third slide-->
-            
+                        {% endif %}
+                    {% endfor %}
                 </div>
-                <!--/.Slides-->
-            
-                </div>
-                <!--/.Carousel Wrapper-->
+            </div>
+            <!--/.Carousel Wrapper-->
         </div>
     </div>
 
@@ -226,6 +125,73 @@
     <div class="row">
         <div class="col-md-12" style="padding-left: 0;">
             <h3>Tus pantallas</h3>
+             <!--Carousel Wrapper-->
+             <div id="multi-item-example" class="carousel slide carousel-multi-item" data-ride="carousel">
+                <!--Controls-->
+                <div class="controls-top">
+                    <a class="btn-floating" href="#multi-item-example" data-slide="prev">
+                        <i class="fa fa-chevron-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                            </svg>
+                        </i>
+                    </a>
+                    <a class="btn-floating" href="#multi-item-example" data-slide="next">
+                        <i class="fa fa-chevron-right">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                            </svg>
+                        </i>
+                    </a>
+                </div>
+                <!--/.Controls-->
+
+                <!--Indicators-->
+                <ol class="carousel-indicators">
+                    <li data-target="#multi-item-example" data-slide-to="0" class="active"></li>
+                    <li data-target="#multi-item-example" data-slide-to="1"></li>
+                    <li data-target="#multi-item-example" data-slide-to="2"></li>
+                </ol>
+                <!--/.Indicators-->
+                
+                <div class="carousel-inner" role="listbox">
+                    {% for sc in scData %}
+                        {% if loop.first %}
+                            <div class="carousel-item active"> 
+                                <div class="row">       
+                        {% elif (loop.index - 1) % 3 == 0 %}
+                                </div>    
+                            </div>        
+                            <div class="carousel-item">
+                                <div class="row">
+                        {% endif %}              
+                        <div class="col-md-4">
+                            <div class="card mb-2">     
+                                {% if environment == 'development' %}
+                                    <img class="card-img-top" src="/forms/static/img/{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                {% else %}
+                                    <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h4 class="card-title">{{sc.0}}</h4>
+                                    <p class="card-text">
+                                        <b>Fecha de inicio: </b>{{sc.1}} <br>
+                                        <b>Fecha de fin: </b>{{sc.2}} <br>
+                                        <b>Duraci&oacute;n: </b>{{sc.3}} <br>
+                                        <b>Precio: </b> 
+                                    </p>
+                                    <a class="btn btn-success" style="display: block; margin: 0 auto;">Comprar</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% if loop.last %}            
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <!--/.Carousel Wrapper-->
         </div>
     </div>
 </div>

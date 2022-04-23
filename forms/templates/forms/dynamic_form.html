@@ -99,6 +99,24 @@
                                 {% endfor %}        
                             </select> 
                             <div id="paymentData"></div>
+                            
+                            {% elif formreq == 'supplier' and i.name == 'platform_that_supplies' %}
+                            <label for="{{i.name}}" class="form-label">{{i.label}}</label>
+                            <div class="multiselect">
+                                <div class="selectBox" onclick="showCheckboxes()">
+                                    <select class="form-control">
+                                        <option>Selecciona las plataformas que provee</option>
+                                    </select>
+                                    <div class="overSelect"></div>
+                                </div>
+                                <div id="checkboxes" class="form-check">
+                                    {% for o in i.options %}
+                                        <label for="{{o.0}}"><input type="checkbox" value="{{o.0}}" class="form-check-input" name="{{i.name}}" required>
+                                            {{o.2}}
+                                        </label>
+                                    {% endfor %}      
+                                </div>
+                            </div>
 
                         {% else %}
                             <label for="{{i.name}}" class="form-label">{{i.label}}</label>

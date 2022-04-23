@@ -36,9 +36,6 @@ def dynamic_table(form, formreq):
         attrb = data[formreq]['attributes']
         label = data[formreq]['label']
         query = data[formreq]['query']
-
-        if form == 'dy':
-            query = query + str(session['id'])
             
         cur = mysql.connection.cursor()
         cur.execute(query)

@@ -175,6 +175,19 @@ def add(form, formreq):
                         string = ', '.join(checkbox)
                         into.append(i['name']) 
                         values.append('"' + string + '"')
+                # MULTIPLE SELECT
+                elif formreq == 'supplier' and i['name'] == 'platform_that_supplies':
+                    into.append(i['name'])
+                    platforms = request.form.getlist(i['name'])
+                    platforms_names = []
+                    for pl in platforms:
+                        query = 'SELECT name FROM platform WHERE id = ' + pl
+                        cur = mysql.connection.cursor()
+                        cur.execute(query)
+                        mysql.connection.commit()
+                        platforms_names.append(cur.fetchone()[0])
+                    string = ', '.join(platforms_names)
+                    values.append('"' + string + '"')
                 # GENERAL
                 elif i['type'] != 'hidden' and i['name'] != 'platform':
                     # START AND END DATE
@@ -313,7 +326,7 @@ def add_payment_method(name, id):
             mysql.connection.commit()
 
         jsonAppend, f = get_json_form('dy')
-        attributes = [{"type":"hidden", "name":"id"}, {"type":"hidden", "name":"seller_id"}]
+        attributes = [{"type":"hidden", "name":"id", "show_label":"no"}, {"type":"hidden", "name":"seller_id", "show_label":"no"}]
         
         requiredFieldsSt = []
         requiredFieldsDy = []
@@ -323,7 +336,7 @@ def add_payment_method(name, id):
             fieldType = request.form.getlist(str(i))[1]
             x, y = normal(fieldType)
 
-            jsonItem = {"type": fieldType, "label": fieldName.capitalize(), "name": fieldName, "normal":x}    
+            jsonItem = {"type": fieldType, "label": fieldName.capitalize(), "name": fieldName, "normal":x, "show_label":"yes"}    
             attributes.append(jsonItem)
             requiredFieldsDy.append(fieldName + y)
             requiredFieldsSt.append(fieldName)
@@ -332,14 +345,14 @@ def add_payment_method(name, id):
 
         # INSERT INTO JSON
         paymentPlatformName = request.form['payment_platform_name'].replace(" ", "_")
-        jsonAppend[paymentPlatformName] = {"query":"SELECT * FROM " + paymentPlatformName + " WHERE seller_id = ", "attributes": attributes}
+        jsonAppend[paymentPlatformName] = {"query":"SELECT * FROM " + paymentPlatformName, "label": paymentPlatformName, "attributes": attributes}
         dyformFullPath = os.path.realpath('./dyform.json')
         with open(dyformFullPath, 'w') as jsonFile:
             json.dump(jsonAppend, jsonFile)
             jsonFile.close()
 
         # CREATE DYNAMIC TABLE
-        query1 = 'CREATE TABLE ' + paymentPlatformName + ' (id INT(11) AUTO_INCREMENT PRIMARY KEY, seller_id INT(11), ' + ', '.join(requiredFieldsDy) + ')'
+        query1 = 'CREATE TABLE ' + paymentPlatformName + ' (id INT(11) AUTO_INCREMENT PRIMARY KEY, user INT(11), ' + ', '.join(requiredFieldsDy) + ')'
         cur = mysql.connection.cursor()
         cur.execute(query1)
         mysql.connection.commit()

@@ -27,7 +27,7 @@
             <thead>
                 <tr>
                     {% for i in attrb %}
-                        {% if ((i.type != 'hidden' and i.label != None) and (i.name != 'password' and formreq != 'streaming_account')) or i.name == 'duration' %}
+                        {% if i.show_label == 'yes' %}
                             <th scope="col">{{ i.label }}</th>
                         {% endif %}
                     {% endfor %}

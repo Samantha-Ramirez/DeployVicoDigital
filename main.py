@@ -80,32 +80,22 @@ def index():
             return render_template('admin.html', username = session['username'], user_type = session['user_type'], reqData = reqData, scData = scData, environment = environment)
         
         elif session['user_type'] == 'seller' or session['user_type'] == 'client':
-            '''
-            query = 'SELECT pl.file_name, pl.name, sc.duration, sc.end_date, us.username, us.phone, sc.email, sc.id FROM platform pl, screen sc, user us WHERE sc.platform = pl.id AND sc.client = us.id AND sc.client IS NOT NULL AND us.user = ' + str(session['id']) + ' AND ORDER BY sc.start_date'
+            # CATALOGE  
             cur = mysql.connection.cursor()
-            cur.execute(query)
+            cur.execute('SELECT pl.name, sa.start_date, sa.end_date, sa.duration, pl.file_name FROM streaming_account sa, platform pl WHERE sa.select_platform = pl.id')
             mysql.connection.commit()
             scData = list(cur.fetchall())
-            scData = screenData(scData)
-            # Cambiar'''
-
-            return render_template('user.html', username = session['username'], scData = scData, environment = environment)
-        '''
-        elif session['user_type'] == 'client':
-            query = 'SELECT sc.*, pl.name FROM screen sc, platform pl WHERE sc.platform = pl.id AND client = ' + str(session['id'])
-            cur = mysql.connection.cursor()
-            cur.execute(query)
-            mysql.connection.commit()
-            scData = list(cur.fetchall())
+            # DATE FORMAT
             x = 0
             for sc in scData:
                 sc = list(sc)
-                sc[5] = datetime.datetime.strptime(str(sc[5]), "%Y-%m-%d").strftime('%d-%m-%Y')
+                sc[1] = datetime.datetime.strptime(str(sc[1]), "%Y-%m-%d").strftime('%d-%m-%Y')
+                sc[2] = datetime.datetime.strptime(str(sc[2]), "%Y-%m-%d").strftime('%d-%m-%Y')
                 scData[x] = sc
                 x = x + 1
-            # Arreglar tambien
-            return render_template('client.html', username = session['username'], scData = scData, environment = environment)'''
 
+            # ACTIVATED SCREENS  
+            return render_template('user.html', username = session['username'], scData = scData, environment = environment)
     return redirect('/auth/login')
 
 @app.route('/profile')
@@ -139,19 +129,6 @@ def profile():
 @app.route('/referencelink/<parent_id>')
 def referenceLink(parent_id):
     return redirect('/auth/signup_seller/' + parent_id)
-
-@app.route('/sells_team')
-def sells_team():
-    if 'loggedin' in session:
-        query = 'SELECT * FROM seller WHERE parent_id = ' + str(session['id'])
-        cur = mysql.connection.cursor()
-        cur.execute(query)
-        mysql.connection.commit()
-        data = cur.fetchall()
-
-        return render_template('sells_team.html', username = session['username'], user_type = session['user_type'], data = data)
-
-    return redirect('/auth/login')
 
 @app.route('/requests/<id>/<option>', methods=['GET', 'POST'])
 def requests(id, option):
@@ -212,7 +189,6 @@ def requests(id, option):
         formatMgg, user, phone = None, None, None
     info = {'formatMgg':formatMgg, 'user':user, 'phone':phone}
     return info
-    
     
 if __name__ == '__main__':
     app.run(port = 3000, debug = True)

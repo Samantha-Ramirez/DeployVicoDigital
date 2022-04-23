@@ -3,80 +3,79 @@
         "label":"Plataformas",
         "query":"SELECT * FROM platform ORDER BY id ASC",
         "attributes":[
-        {"type":"hidden", "name":"id"},
-        {"type":"hidden", "name":"user"},
-        {"type":"text", "label":"Nombre", "name":"name", "normal":"yes"},
-        {"type":"url", "label":"URL", "name":"url", "normal":"yes"},
-        {"type":"number", "label":"Pantallas", "name":"screen_amount", "normal":"yes"},
-        {"type":"file", "label":"Logo", "name":"file_name", "normal":"no"}
+        {"type":"hidden", "name":"id", "show_label":"no"},
+        {"type":"hidden", "name":"user", "show_label":"no"},
+        {"type":"text", "label":"Nombre", "name":"name", "normal":"yes", "show_label":"yes"},
+        {"type":"url", "label":"URL", "name":"url", "normal":"yes", "show_label":"yes"},
+        {"type":"number", "label":"Pantallas", "name":"screen_amount", "normal":"yes", "show_label":"yes"},
+        {"type":"file", "label":"Logo", "name":"file_name", "normal":"no", "show_label":"yes"}
     ]}, 
     "supplier": {
         "label":"Proveedores",
-        "query":"SELECT sup.id, sup.user, sup.name, pl.name, sup.email, sup.phone, sup.local_phone, sup.telegram, sup.country, sup.paypal, sup.pago_movil, sup.bank FROM supplier sup, platform pl WHERE sup.platform_that_supplies = pl.id ORDER BY sup.id ASC",
+        "query":"SELECT * FROM supplier ORDER BY id ASC",
         "attributes":[
-        {"type":"hidden", "name":"id"},
-        {"type":"hidden", "name":"user"},
-        {"type":"text", "label":"Nombre", "name":"name", "normal":"yes"},
-        {"type":"select", "label":"Plataforma", "name":"platform_that_supplies", "selectTable":"platform", "normal":"no"},
-        {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
-        {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes"},
-        {"type":"text", "label":"Telefono local", "name":"local_phone", "normal":"yes"},
-        {"type":"text", "label":"Telegram", "name":"telegram", "normal":"yes"},
-        {"type":"text", "label":"Pais", "name":"country", "normal":"yes"},
-        {"type":"text", "label":"PayPal", "name":"paypal", "placeholder":"Email", "normal":"yes"},
-        {"type":"text", "label":"Pago movil", "placeholder":"Phone, CI, Bank", "name":"pago_movil", "normal":"yes"},
-        {"type":"text", "label":"Banco", "name":"bank", "normal":"yes"}
+        {"type":"hidden", "name":"id", "show_label":"no"},
+        {"type":"hidden", "name":"user", "show_label":"no"},
+        {"type":"text", "label":"Nombre", "name":"name", "normal":"yes", "show_label":"yes"},
+        {"type":"select", "label":"Plataformas", "name":"platform_that_supplies", "selectTable":"platform", "normal":"no", "show_label":"yes"},
+        {"type":"email", "label":"Email", "name":"email", "normal":"yes", "show_label":"yes"},
+        {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes", "show_label":"yes"},
+        {"type":"text", "label":"Telefono local", "name":"local_phone", "normal":"yes", "show_label":"yes"},
+        {"type":"text", "label":"Pais", "name":"country", "normal":"yes", "show_label":"yes"},
+        {"type":"text", "label":"PayPal", "name":"paypal", "placeholder":"Email", "normal":"yes", "show_label":"yes"},
+        {"type":"text", "label":"Pago movil", "placeholder":"Phone, CI, Bank", "name":"pago_movil", "normal":"yes", "show_label":"yes"},
+        {"type":"text", "label":"Banco", "name":"bank", "normal":"yes", "show_label":"yes"}
     ]},  
     "streaming_account": {
         "label":"Cuentas streaming",
         "query":"SELECT sa.id, sa.user, sp.name, sup.name, sa.start_date, sa.end_date, sa.duration, sa.email, sa.password FROM streaming_account sa, platform sp,supplier sup WHERE sa.select_platform = sp.id AND sa.select_supplier = sup.id ORDER BY sa.id ASC",
         "attributes":[
-        {"type":"hidden", "name":"id"},
-        {"type":"hidden", "name":"user"},
-        {"type":"select", "label":"Plataforma", "name":"select_platform", "selectTable":"platform", "normal":"no"},
-        {"type":"select", "label":"Proveedor", "name":"select_supplier", "selectTable":"supplier", "normal":"no"},
-        {"type":"date", "label":"Fecha de inicio", "name":"start_date", "normal":"no"},
-        {"type":"date", "label":"Fecha de fin", "name":"end_date", "normal":"no"},
-        {"type":"hidden", "label":"Duracion", "name":"duration"},
-        {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
-        {"type":"text", "label":"Clave", "name":"password", "normal":"yes"},
-        {"type":"hidden", "name":"last_screens"}
+        {"type":"hidden", "name":"id", "show_label":"no"},
+        {"type":"hidden", "name":"user", "show_label":"no"},
+        {"type":"select", "label":"Plataforma", "name":"select_platform", "selectTable":"platform", "normal":"no", "show_label":"yes"},
+        {"type":"select", "label":"Proveedor", "name":"select_supplier", "selectTable":"supplier", "normal":"no", "show_label":"yes"},
+        {"type":"date", "label":"Fecha de inicio", "name":"start_date", "normal":"no", "show_label":"yes"},
+        {"type":"date", "label":"Fecha de fin", "name":"end_date", "normal":"no", "show_label":"yes"},
+        {"type":"hidden", "label":"Duracion", "name":"duration", "show_label":"yes"},
+        {"type":"email", "label":"Email", "name":"email", "normal":"yes", "show_label":"yes"},
+        {"type":"text", "label":"Clave", "name":"password", "normal":"yes", "show_label":"yes"},
+        {"type":"hidden", "name":"last_screens", "show_label":"no"}
     ]},
     "seller": {
         "label":"Vendedores",
         "query":"SELECT * FROM user WHERE user_type = 'seller' ORDER BY id ASC",
         "attributes":[
-        {"type":"hidden", "name":"id"},
-        {"type":"hidden", "name":"user_type"},
-        {"type":"hidden", "name":"parent_id"},
-        {"type":"text", "label":"Nombre de usuario", "name":"username", "normal":"yes"},
-        {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
-        {"type":"password", "label":"Clave", "name":"password", "normal":"yes"},
-        {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes"},
-        {"type":"text", "label":"CI", "name":"ci", "normal":"yes"},
-        {"type":"radio", "label":"Genero", "name":"gender", "value":"Man", "normal":"no"},
-        {"type":"radio", "label":null, "name":"gender", "value":"Woman", "normal":"no"}
+        {"type":"hidden", "name":"id", "show_label":"no"},
+        {"type":"hidden", "name":"user_type", "show_label":"no"},
+        {"type":"hidden", "name":"parent_id", "show_label":"no"},
+        {"type":"text", "label":"Nombre de usuario", "name":"username", "normal":"yes", "show_label":"yes"},
+        {"type":"email", "label":"Email", "name":"email", "normal":"yes", "show_label":"yes"},
+        {"type":"password", "label":"Clave", "name":"password", "normal":"yes", "show_label":"no"},
+        {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes", "show_label":"yes"},
+        {"type":"text", "label":"CI", "name":"ci", "normal":"yes", "show_label":"yes"},
+        {"type":"radio", "label":"Genero", "name":"gender", "value":"Man", "normal":"no", "show_label":"yes"},
+        {"type":"radio", "label":null, "name":"gender", "value":"Woman", "normal":"no", "show_label":"yes"}
     ]}, 
     "payment_method": {
         "label":"Metodos de pago",
         "query":"SELECT * FROM payment_method ORDER BY id ASC",
         "attributes":[
-        {"type":"hidden", "name":"id"},
-        {"type":"hidden", "name":"user"},
-        {"type":"text", "label":"Nombre", "name":"payment_platform_name", "normal":"yes"},
-        {"type":"file", "label":"Logo", "name":"file_name", "normal":"no"},
-        {"type":"text", "label":"Campos requeridos", "name":"required_fields", "normal":"yes"}
+        {"type":"hidden", "name":"id", "show_label":"no"},
+        {"type":"hidden", "name":"user", "show_label":"no"},
+        {"type":"text", "label":"Nombre", "name":"payment_platform_name", "normal":"yes", "show_label":"yes"},
+        {"type":"file", "label":"Logo", "name":"file_name", "normal":"no", "show_label":"yes"},
+        {"type":"text", "label":"Campos requeridos", "name":"required_fields", "normal":"yes", "show_label":"yes"}
     ]},
     "client": {
         "label":"Clientes",
         "query":"SELECT id, user_type, username, email, phone FROM user WHERE user_type = 'client'",
         "attributes":[
-        {"type":"hidden", "name":"id"},
-        {"type":"hidden", "name":"user_type"},
-        {"type":"text", "label":"Nombre de usuario", "name":"username", "normal":"yes"},
-        {"type":"email", "label":"Email", "name":"email", "normal":"yes"},
-        {"type":"password", "label":"Clave", "name":"password", "normal":"yes"},
-        {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes"}
+        {"type":"hidden", "name":"id", "show_label":"no"},
+        {"type":"hidden", "name":"user_type", "show_label":"no"},
+        {"type":"text", "label":"Nombre de usuario", "name":"username", "normal":"yes", "show_label":"yes"},
+        {"type":"email", "label":"Email", "name":"email", "normal":"yes", "show_label":"yes"},
+        {"type":"password", "label":"Clave", "name":"password", "normal":"yes", "show_label":"no"},
+        {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes", "show_label":"yes"}
         ]
     },
     "request": {
