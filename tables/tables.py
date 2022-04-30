@@ -12,20 +12,12 @@ tables_bp = Blueprint('tables_bp', __name__,
 app, mysql, environment = create_app()
 
 def get_json_form(form):
-    if form == 'st':
-        if environment == 'development':
-            stformFullPath = os.path.realpath('./stform.json')
-        else:
-            stformFullPath = os.path.realpath('./deploy/stform.json')
-        f = open(stformFullPath,)
-        data = json.load(f)
-    elif form == 'dy':
-        if environment == 'development':
-            dyformFullPath = os.path.realpath('./dyform.json')
-        else:
-            dyformFullPath = os.path.realpath('./deploy/dyform.json')
-        f = open(dyformFullPath,)
-        data = json.load(f)
+    if environment == 'development':
+        stformFullPath = os.path.realpath('./stform.json')
+    else:
+        stformFullPath = os.path.realpath('./deploy/stform.json')
+    f = open(stformFullPath,)
+    data = json.load(f)
     return data, f
 
 # PAGES

@@ -22,34 +22,6 @@
             expanded = false;
         }
     }
-
-    // SHOW PAYMENT DATA
-    function myFunction() {
-        var sel = document.getElementById('mySelect');
-        var attrPaymentData = sel.getAttribute('paymentData');
-        var paymentData = JSON.parse(attrPaymentData.replaceAll("'",'"'));
-        var selected = sel.options[sel.selectedIndex];
-        var extra = selected.getAttribute('attrb');
-        var x = document.getElementById("mySelect").value;
-        var environment = document.getElementById('environment').getAttribute('value');
-
-        // PINTAR
-        let output = '<p>';
-        for (let j in paymentData[extra][0]){
-            if (j != 'id' && j != 'seller_id'){
-                if (paymentData[extra][0][j][0] == 'file'){
-                    if (environment == 'development'){
-                        paymentData[extra][0][j] = "<img src=\'/forms/static/img/" + paymentData[extra][0][j][1] + "\' width = \'70\' height = \'70\'>"
-                    }else{
-                        paymentData[extra][0][j] = "<img src=\'https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C" + paymentData[extra][0][j][1] + "\' width = \'70\' height = \'70\'>"
-                    }
-                }
-                output += j + ': ' + paymentData[extra][0][j] + '<br/>';
-            }
-        }
-        output += '<p>';
-        document.getElementById("paymentData").innerHTML = output;
-    }
 </script>
 
 <div id="environment" value="{{environment}}" style="display: none;"> </div>
@@ -72,35 +44,7 @@
 
                     <!--SELECT-->
                     {% elif i.type == 'select' %}
-                        {% if formreq == 'request' and i.name == 'platform' %}
-                            <label for="{{i.name}}" class="form-label">{{i.label}}</label>
-                            <div class="multiselect">
-                                <div class="selectBox" onclick="showCheckboxes()">
-                                    <select class="form-control">
-                                        <option>Selecciona las plataformas que desees</option>
-                                    </select>
-                                    <div class="overSelect"></div>
-                                </div>
-                                <div id="checkboxes" class="form-check">
-                                    {% for o in i.options %}
-                                        <label for="{{o.3}}"><input type="checkbox" value="{{o.3}}" class="form-check-input" name="{{i.name}}" required>
-                                            {{o.1}} | {{o.2}}
-                                        </label>
-                                    {% endfor %}      
-                                </div>
-                            </div>
-
-                        {% elif formreq == 'request' and i.name == 'payment_method' %}
-                            <label for="{{i.name}}" class="form-label">{{i.label}}</label>
-                            <select name="{{i.name}}" class="form-control" id="mySelect" paymentData ="{{payDict}}" onchange="myFunction()">
-                                <option value="none" selected disabled hidden>Selecciona el metodo de pago que desees</option>
-                                {% for o in i.options %}
-                                    <option value="{{o.0}}" attrb="{{o.2}}">{{o.2}}</option>
-                                {% endfor %}        
-                            </select> 
-                            <div id="paymentData"></div>
-                            
-                            {% elif formreq == 'supplier' and i.name == 'platform_that_supplies' %}
+                        {% if formreq == 'supplier' and i.name == 'platform_that_supplies' %}
                             <label for="{{i.name}}" class="form-label">{{i.label}}</label>
                             <div class="multiselect">
                                 <div class="selectBox" onclick="showCheckboxes()">
@@ -117,6 +61,13 @@
                                     {% endfor %}      
                                 </div>
                             </div>
+                        {% elif formreq == 'recharge_request' and i.name == 'payment_method' %}
+                            <label for="{{i.name}}" class="form-label">{{i.label}}</label>
+                            <select name="{{i.name}}" class="form-control">
+                                {% for o in i.options %}
+                                    <option value="{{o.0}}">{{o.2}}, {{o.3}}</option>
+                                {% endfor %}        
+                            </select> 
 
                         {% else %}
                             <label for="{{i.name}}" class="form-label">{{i.label}}</label>

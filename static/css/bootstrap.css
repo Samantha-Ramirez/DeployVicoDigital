@@ -1234,6 +1234,7 @@ progress {
     -ms-flex: 0 0 auto;
     flex: 0 0 auto;
     width: 100%;
+    padding: 0;
   }
   .offset-md-0 {
     margin-left: 0;
@@ -4997,6 +4998,8 @@ fieldset:disabled .btn {
   .card-group > .card + .card {
     margin-left: 0;
     border-left: 0;
+    margin-right: 0;
+    border-right: 0;
   }
   .card-group > .card:not(:last-child) {
     border-top-right-radius: 0;
@@ -6547,14 +6550,12 @@ fieldset:disabled .btn {
   margin-right: -100%;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transition: -webkit-transform 0.6s ease-in-out;
-  transition: transform 0.6s ease-in-out;
-  transition: transform 0.6s ease-in-out, -webkit-transform 0.6s ease-in-out;
+  transition: transform 0.4s ease-in-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .carousel-item {
-    transition: none;
+    transition: transform 0.4s ease-in-out;
   }
 }
 
@@ -11474,4 +11475,15 @@ fieldset:disabled .btn {
 .modal .btn-close,
 .toast .btn-close {
   background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'><path d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/></svg>");
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }

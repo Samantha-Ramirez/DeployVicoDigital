@@ -63,8 +63,8 @@
         {"type":"hidden", "name":"id", "show_label":"no"},
         {"type":"hidden", "name":"user", "show_label":"no"},
         {"type":"text", "label":"Nombre", "name":"payment_platform_name", "normal":"yes", "show_label":"yes"},
-        {"type":"file", "label":"Logo", "name":"file_name", "normal":"no", "show_label":"yes"},
-        {"type":"text", "label":"Campos requeridos", "name":"required_fields", "normal":"yes", "show_label":"yes"}
+        {"type":"text", "label":"Datos", "name":"data", "normal":"yes", "show_label":"yes"},
+        {"type":"file", "label":"Logo", "name":"file_name", "normal":"no", "show_label":"yes"}
     ]},
     "client": {
         "label":"Clientes",
@@ -78,18 +78,17 @@
         {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes", "show_label":"yes"}
         ]
     },
-    "request": {
-        "label":"Solicitudes",
+    "recharge_request": {
+        "label":"Recarga de saldo",
         "query":"",
         "attributes":[
-        {"type":"hidden", "name":"id"},
-        {"type":"hidden", "name":"user"},
-        {"type":"hidden", "name":"username"},
-        {"type":"hidden", "name":"date"},
-        {"type":"select", "label":"Plataforma", "name":"platform", "selectTable":"streaming_account", "normal":"no"},
-        {"type":"select", "label":"Metodo de pago", "name":"payment_method", "selectTable":"payment_method", "normal":"no"},
-        {"type":"hidden", "name":"status"},
-        {"type":"text", "label":"Numero de la transaccion", "name":"receipt", "normal":"yes"}
+        {"type":"hidden", "name":"id", "show_label":"no"},
+        {"type":"hidden", "name":"user", "show_label":"no"},
+        {"type":"hidden", "name":"date", "show_label":"no"},
+        {"type":"select", "label":"Metodo de pago", "name":"payment_method", "selectTable":"payment_method", "normal":"no", "show_label":"yes"},
+        {"type":"number", "label":"Monto (Bs.)", "name":"amount", "normal":"yes", "show_label":"yes"},
+        {"type":"text", "label":"Referencia", "name":"reference", "normal":"yes", "show_label":"yes"},
+        {"type":"hidden", "name":"status", "show_label":"no"}
         ]
     }
 }

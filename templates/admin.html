@@ -5,26 +5,12 @@
 {% block body %}
 
 <div class="container">
-    <!-- The Modal -->
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>                
-            <div class="modal-header" id="change1">
-            </div>
-            <div class="modal-body">
-                <div class="btn-group btn-group-justified" id="change2">
-                </div>
-            </div>                
-        </div>
-    </div>
-    
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     {% for message in messages %}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <strong>{{ message }}</strong>
-        <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
         </button>
     </div>
     {% endfor %}
@@ -33,32 +19,26 @@
     
     <div class="row">
         <!--REQUEST TABLE-->
-        <div class="col-sm-8">
+        <div class="col-sm-12">
             <h2>Solicitudes</h2>
             <div class="table-responsive">
                 <table class="table table-striped table-hover table-sm bg-white">
                     <thead>
                         <tr>
-                            <th scope="col" width="100">Fecha</th>
-                            <th scope="col">Vendedor</th>
-                            <th scope="col">Cliente</th>
-                            <th scope="col">Tipo</th>
-                            <th scope="col">Plataforma</th>
-                            <th scope="col">Pantalla</th>
-                            <th scope="col">Recibo</th>
-                            <th scope="col" width="120">Opciones</th>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">M&eacute;todo de pago</th>
+                            <th scope="col">Monto (Bs.)</th>
+                            <th scope="col">Referencia</th>
+                            <th scope="col">Opciones</th>
                         </tr> 
                     </thead>
                     <tbody>
                         {% for d in reqData %}
                         <tr>
                             <td>{{ d.1 }}</td>
-                            <td>{{ d.2 }}</td>
-                            <td>{{ d.3 }}</td>
+                            <td>{{ d.2 }}, {{ d.3 }}</td>
                             <td>{{ d.4 }}</td>
                             <td>{{ d.5 }}</td>
-                            <td>{{ d.6 }}</td>
-                            <td>{{ d.7 }}</td>
                             <td>
                                 <button id="myId" type="submit" name="approved" class="btn btn-success" value="{{d.0}}" onclick="fetchInfo(this)">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
@@ -77,40 +57,31 @@
                 </table>
             </div>
         </div>
-
-        <!--NEWS OR NOTIFICATIONS-->
-        <div class="col-sm-4">
-            <h2>Notificaciones</h2>
-        </div>
     </div>
-
-    <div class="row">
-        <!--ACTIVATED SCREENS-->
-        <div class="col-sm-8">
-            <h2>Pantallas activas</h2>
-            {% for sc in scData %}
-                <button class="accordion">
-                    {% if environment == 'development' %}
-                        <img src="/forms/static/img/{{sc.0}}" width="30" height="30">
-                    {% else %}
-                        <img src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.0}}" width="30" height="30">
-                    {% endif %}
-                    {{sc.1}} {{sc.2}} | Vence el {{sc.3}} | Faltan {{sc.4}}
-                </button>
-                <div class="panel">
-                    <p>{{sc.1}}: {{sc.5}}, {{sc.6}}</p>
-                    <a class="btn btn-success" href="http://web.whatsapp.com/send?phone={{sc.6}}&text={{sc.8}}">Enviar cobro por WhatsApp</a>
-                    <input type="hidden" value="{{sc.8}}" id="{{sc.9}}">
-                    <button type="button" class="btn btn-primary" onclick="copyText('{{sc.9}}')">Copiar</button>
-                </div>
-            {% endfor %}
+    <hr class="mt-5">
+        <div class="row">
+            <!--ACTIVATED SCREENS-->
+            <div class="col-sm-12">
+                <h2>Pantallas activas</h2>
+                {% for sc in scData %}
+                    <button class="accordion">
+                        {% if environment == 'development' %}
+                            <img src="/forms/static/img/{{sc.0}}" width="30" height="30">
+                        {% else %}
+                            <img src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.0}}" width="30" height="30">
+                        {% endif %}
+                        {{sc.1}} {{sc.2}} | Vence el {{sc.3}} | Faltan {{sc.4}}
+                    </button>
+                    <div class="panel">
+                        <p>{{sc.1}}: {{sc.5}}, {{sc.6}}</p>
+                        <a class="btn btn-success" href="http://web.whatsapp.com/send?phone={{sc.6}}&text={{sc.8}}">Enviar cobro por WhatsApp</a>
+                        <input type="hidden" value="{{sc.8}}" id="{{sc.9}}">
+                        <button type="button" class="btn btn-primary" onclick="copyText('{{sc.9}}')">Copiar</button>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-
-        <!--VIDEOS-->
-        <div class="col-sm-4">
-            <h2>Videos</h2>
-        </div>
-    </div>
+    </hr>
 </div>
 
 <script>
@@ -118,34 +89,8 @@
     async function fetchInfo(sel) {
         var id = sel.value;
         var option = sel.getAttribute('name');
-        const response = await fetch(`/requests/${id}/${option}`);
-        const info = await response.json();
-
-        // Modal
-        if (option === 'approved'){
-            var modal = document.getElementById("myModal");
-            var close = document.getElementsByClassName("close")[0];
-            document.getElementById("change1").innerHTML = `<h2 class="modal-title">Enviar datos a ${info['user']}, ${info['phone']}</h2>`;
-            document.getElementById("change2").innerHTML = `<input type="hidden" value="${info['formatMgg']}" id="format">
-                    <button type="button" class="btn btn-light btn-lg" onclick="copyText('format')">Copiar en clipboard</button>
-                    <a class="btn btn-primary btn-lg" href="http://web.whatsapp.com/send?phone=${info['phone']}&text=${info['formatMgg']}">Enviar cobro por WhatsApp</a>`;
-            modal.style.display = "block";
-
-            close.onclick = function() {
-                modal.style.display = "none";
-                location.reload();
-            }
-
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                    location.reload();
-                }
-            }
-
-        } else if (option === 'rejected'){
-            location.reload();
-        };
+        const response = await fetch(`/recharge_request/${id}/${option}`);
+        location.reload();
     };
 
     // Accordion function

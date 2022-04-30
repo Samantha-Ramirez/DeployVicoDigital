@@ -64,7 +64,7 @@ def index():
     if 'loggedin' in session:
         if session['user_type'] == 'admin':
             # REQUEST DATA
-            query = 'SELECT rq.id, rq.date, us.username, rq.username, rq.user_type , pl.name, sc.number, rq.receipt FROM request rq, screen sc, user us, platform pl WHERE sc.id = (SELECT MIN(id) FROM screen WHERE platform = rq.platform AND client IS NULL) AND us.id = rq.seller_id AND pl.id = sc.platform AND rq.status = "not_verified" ORDER BY rq.id ASC'
+            query = 'SELECT rq.id, us.username, pm.payment_platform_name, pm.data, rq.amount, rq.reference FROM recharge_request rq, user us, payment_method pm WHERE us.id = rq.user AND rq.payment_method = pm.id AND rq.status = "no verificado" ORDER BY rq.id ASC'
             cur = mysql.connection.cursor()
             cur.execute(query)
             mysql.connection.commit()
@@ -82,7 +82,7 @@ def index():
         elif session['user_type'] == 'seller' or session['user_type'] == 'client':
             # CATALOGE  
             cur = mysql.connection.cursor()
-            cur.execute('SELECT pl.name, sa.start_date, sa.end_date, sa.duration, pl.file_name FROM streaming_account sa, platform pl WHERE sa.select_platform = pl.id')
+            cur.execute('SELECT pl.name, sa.start_date, sa.end_date, sa.duration, pl.file_name, sa.id FROM streaming_account sa, platform pl WHERE sa.select_platform = pl.id')
             mysql.connection.commit()
             scData = list(cur.fetchall())
             # DATE FORMAT
@@ -130,65 +130,50 @@ def profile():
 def referenceLink(parent_id):
     return redirect('/auth/signup_seller/' + parent_id)
 
-@app.route('/requests/<id>/<option>', methods=['GET', 'POST'])
+@app.route('/recharge_request/<id>/<option>', methods=['GET', 'POST'])
 def requests(id, option):
     if option == 'approved':
         # Get info
-        query = 'SELECT rq.client_id, sa.select_platform, sa.last_screens, sa.id FROM request rq, streaming_account sa WHERE sa.select_platform = rq.platform AND rq.id =' + str(id)
+        query = 'SELECT rq.user, rq.amount, rq.reference FROM recharge_request rq, user us WHERE rq.user = us.id AND rq.id =' + str(id)
         cur = mysql.connection.cursor()
         cur.execute(query)
         mysql.connection.commit()
-        clData = cur.fetchone()
+        rqData = cur.fetchone()
 
         # Request verified
-        query2 = 'UPDATE request SET status = "verified" WHERE id = ' + str(id)
+        query2 = 'UPDATE recharge_request SET status = "verificado" WHERE id = ' + str(id)
         cur.execute(query2)
         mysql.connection.commit()
 
-        # Match screen and client
-        query3 = 'UPDATE screen SET client = ' + str(clData[0]) + ' WHERE id = (SELECT MIN(id) FROM screen WHERE platform = ' + str(clData[1]) + ' AND client IS NULL)'
-        cur.execute(query3)
+        # Add money in wallet
+        query2 = 'SELECT * FROM wallet WHERE id = ' + str(rqData[0])
+        cur.execute(query2)
         mysql.connection.commit()
-
-        # Streaming account minur 1 screen
-        minur = clData[2] - 1
-        query4 = 'UPDATE streaming_account SET last_screens = "' + str(minur) + '" WHERE id = ' + str(clData[3])
-        cur.execute(query4)
-        mysql.connection.commit()
-
-        # Create format message
-        query5 = 'SELECT pl.name, pl.screen_amount, sc.*, us.username, us.phone FROM screen sc, platform pl, user us WHERE pl.id = sc.platform AND sc.client = us.id AND sc.client = ' + str(clData[0])
-        cur.execute(query5)
-        mysql.connection.commit()
-        scData = cur.fetchone()
-        formatMgg = f'''
-        Acceso a su perfil de {scData[0]}
-        Inicio: {scData[6]}
-        Fin: {scData[7]}
-        🔊 Si ha usado {scData[0]} antes debe borrar los archivos temporales de su navegador y si es una aplicación debe volverla a instalar, si es Smart TV, cerrar la aplicación apague y encienda el televisor ¡No comparta su clave! Ya que {scData[0]} solo permite un máximo de {scData[1]} usuarios en la cuenta. Si comparte la cuenta tendremos que suspender y cambiar las claves de acceso.
-        URL: {scData[9]}
-        Email: {scData[10]}
-        Clave: {scData[11]}
-        Perfil: {scData[4]}
-        PIN: 
-        📣 TÉRMINOS Y CONDICIONES:
-        1. No modifique ninguna información sobre la cuenta.
-        2. No cambie el correo electrónico o la contraseña de su cuenta.
-        3. No agregue ni elimine perfiles.
-        4. Este es un producto digital. Entonces, después de la compra, no se puede hacer un reembolso. Solo garantía de reemplazo.'''
-        user = scData[13]
-        phone = scData[14]
-        phone = '+58' + phone[1:]
+        account = cur.fetchone()
+        if account:
+            amount = account[2] + rqData[1]
+            query2 = 'UPDATE wallet SET amount = ' + str(amount) + 'WHERE id = ' + str(id)
+            cur.execute(query2)
+            mysql.connection.commit()
+        else:
+            amount = rqData[1]
+            query2 = 'INSERT INTO wallet (user, amount) VALUES (' + str(rqData[0]) + ', ' + str(amount) + ')'
+            cur.execute(query2)
+            mysql.connection.commit()
+        feedback = 'Tu solicitud con la referencia ' + str(rqData[2]) + ' por Bs. ' + str(rqData[1]) + ' fue aceptada'
 
     elif option == 'rejected':
         # Request rejected
-        query1 = 'UPDATE request SET status = "rejected" WHERE id = ' + str(id)
+        query3 = 'UPDATE recharge_request SET status = "rechazado" WHERE id = ' + str(id)
         cur = mysql.connection.cursor()
-        cur.execute(query1)
+        cur.execute(query3)
         mysql.connection.commit()
-        formatMgg, user, phone = None, None, None
-    info = {'formatMgg':formatMgg, 'user':user, 'phone':phone}
-    return info
+        feedback = 'Tu solicitud con la referencia ' + str(rqData[2]) + ' por Bs. ' + str(rqData[1]) + ' fue rechazada'
+    
+    query4 = 'INSERT INTO notifications (user, content) VALUES (' + str(rqData[0]) + ', "' +  feedback + '")'
+    cur.execute(query4)
+    mysql.connection.commit()
+    return feedback 
     
 if __name__ == '__main__':
     app.run(port = 3000, debug = True)
