@@ -95,7 +95,14 @@ def index():
                 x = x + 1
 
             # ACTIVATED SCREENS  
-            return render_template('user.html', username = session['username'], scData = scData, environment = environment)
+
+            # NOTIFICATIONS
+            query = 'SELECT * FROM notifications nt, user us WHERE nt.user = us.id AND us.id = ' + str(session['id'])
+            cur.execute(query)
+            mysql.connection.commit()
+            notifications = cur.fetchall()
+
+            return render_template('user.html', username = session['username'], scData = scData, environment = environment, notifications = notifications)
     return redirect('/auth/login')
 
 @app.route('/profile')
@@ -132,46 +139,46 @@ def referenceLink(parent_id):
 
 @app.route('/recharge_request/<id>/<option>', methods=['GET', 'POST'])
 def requests(id, option):
+    # Get info
+    query = 'SELECT rq.user, rq.amount, rq.reference FROM recharge_request rq, user us WHERE rq.user = us.id AND rq.id =' + str(id)
+    cur = mysql.connection.cursor()
+    cur.execute(query)
+    mysql.connection.commit()
+    rqData = cur.fetchone()
     if option == 'approved':
-        # Get info
-        query = 'SELECT rq.user, rq.amount, rq.reference FROM recharge_request rq, user us WHERE rq.user = us.id AND rq.id =' + str(id)
-        cur = mysql.connection.cursor()
-        cur.execute(query)
-        mysql.connection.commit()
-        rqData = cur.fetchone()
-
         # Request verified
         query2 = 'UPDATE recharge_request SET status = "verificado" WHERE id = ' + str(id)
         cur.execute(query2)
         mysql.connection.commit()
 
         # Add money in wallet
-        query2 = 'SELECT * FROM wallet WHERE id = ' + str(rqData[0])
-        cur.execute(query2)
+        query3 = 'SELECT * FROM wallet WHERE user = ' + str(rqData[0])
+        cur.execute(query3)
         mysql.connection.commit()
         account = cur.fetchone()
         if account:
             amount = account[2] + rqData[1]
-            query2 = 'UPDATE wallet SET amount = ' + str(amount) + 'WHERE id = ' + str(id)
-            cur.execute(query2)
+            query4 = 'UPDATE wallet SET amount = ' + str(amount) + ' WHERE user = ' + str(rqData[0])
+            cur.execute(query4)
             mysql.connection.commit()
         else:
             amount = rqData[1]
-            query2 = 'INSERT INTO wallet (user, amount) VALUES (' + str(rqData[0]) + ', ' + str(amount) + ')'
-            cur.execute(query2)
+            query4 = 'INSERT INTO wallet (user, amount) VALUES (' + str(rqData[0]) + ', ' + str(amount) + ')'
+            cur.execute(query4)
             mysql.connection.commit()
-        feedback = 'Tu solicitud con la referencia ' + str(rqData[2]) + ' por Bs. ' + str(rqData[1]) + ' fue aceptada'
+        feedback = 'Tu solicitud por Bs. ' + str(rqData[1]) + ' fue aceptada'
 
     elif option == 'rejected':
         # Request rejected
-        query3 = 'UPDATE recharge_request SET status = "rechazado" WHERE id = ' + str(id)
+        query = 'UPDATE recharge_request SET status = "rechazado" WHERE id = ' + str(id)
         cur = mysql.connection.cursor()
-        cur.execute(query3)
+        cur.execute(query)
         mysql.connection.commit()
-        feedback = 'Tu solicitud con la referencia ' + str(rqData[2]) + ' por Bs. ' + str(rqData[1]) + ' fue rechazada'
+        feedback = 'Tu solicitud por Bs. ' + str(rqData[1]) + ' fue rechazada'
     
-    query4 = 'INSERT INTO notifications (user, content) VALUES (' + str(rqData[0]) + ', "' +  feedback + '")'
-    cur.execute(query4)
+    today = date.today().strftime('%Y-%m-%d')
+    query5 = 'INSERT INTO notifications (user, date, content) VALUES (' + str(rqData[0]) + ', "' + today + '", "' +  feedback + '")'
+    cur.execute(query5)
     mysql.connection.commit()
     return feedback 
     

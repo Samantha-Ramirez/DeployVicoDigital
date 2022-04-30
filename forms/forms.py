@@ -137,16 +137,12 @@ def add(form, formreq):
                 values.append('"' + string + '"')
             # GENERAL
             elif i['type'] != 'hidden' and i['name'] != 'platform':
-                # START AND END DATE
-                if formreq == 'streaming_account' and i['name'] == 'start_date':
-                    start = request.form[i['name']]
-                elif formreq == 'streaming_account' and i['name'] == 'end_date':
-                    end = request.form[i['name']]
-
                 into.append(i['name']) 
                 values.append('"' + request.form[i['name']] + '"')
             # DURATION OF STREAMING ACCOUNT 
             elif formreq == 'streaming_account' and i['name'] == 'duration':
+                start = request.form[i['name']]
+                end = request.form[i['name']]
                 duration = platform_duration(start, end)
                 into.append(i['name']) 
                 values.append('"' + duration + '"')

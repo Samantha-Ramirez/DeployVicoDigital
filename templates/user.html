@@ -2,6 +2,16 @@
 
 {% block title %}Inicio | Sistema Streaming{% endblock %}
 
+{% block head %}
+    <div class="card">
+        {% for n in notifications %}
+            <div class="card-body">
+                {{n.3}}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
 {% block body %}
 <script>
     // Accordion function
