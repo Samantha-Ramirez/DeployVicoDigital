@@ -137,8 +137,16 @@ def profile():
 def referenceLink(parent_id):
     return redirect('/auth/signup_seller/' + parent_id)
 
+@app.route('/delete_notification/<id>', methods=['GET', 'POST'])
+def delete_notification(id):
+    cur = mysql.connection.cursor()
+    query = 'DELETE FROM notifications WHERE id = ' + str(id)
+    cur.execute(query)
+    mysql.connection.commit()
+    return id
+
 @app.route('/recharge_request/<id>/<option>', methods=['GET', 'POST'])
-def requests(id, option):
+def recharge_request(id, option):
     # Get info
     query = 'SELECT rq.user, rq.amount, rq.reference FROM recharge_request rq, user us WHERE rq.user = us.id AND rq.id =' + str(id)
     cur = mysql.connection.cursor()
