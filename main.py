@@ -143,7 +143,13 @@ def delete_notification(id):
     query = 'DELETE FROM notifications WHERE id = ' + str(id)
     cur.execute(query)
     mysql.connection.commit()
-    return id
+
+    query1 = 'SELECT * FROM notifications nt, user us WHERE nt.user = us.id AND us.id = ' + str(session['id'])
+    cur.execute(query1)
+    mysql.connection.commit()
+    newNotifications = cur.fetchall()
+    newNotifications = {'newNotifications': list(newNotifications)}
+    return newNotifications
 
 @app.route('/recharge_request/<id>/<option>', methods=['GET', 'POST'])
 def recharge_request(id, option):
