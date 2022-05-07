@@ -28,7 +28,7 @@
     ]},  
     "streaming_account": {
         "label":"Cuentas streaming",
-        "query":"SELECT sa.id, sa.user, sp.name, sup.name, sa.start_date, sa.end_date, sa.duration, sa.email, sa.password FROM streaming_account sa, platform sp,supplier sup WHERE sa.select_platform = sp.id AND sa.select_supplier = sup.id ORDER BY sa.id ASC",
+        "query":"SELECT sa.id, sa.user, sp.name, sup.name, sa.start_date, sa.end_date, sa.duration, sa.email, sa.password, sa.price FROM streaming_account sa, platform sp, supplier sup WHERE sa.select_platform = sp.id AND sa.select_supplier = sup.id ORDER BY sa.id ASC",
         "attributes":[
         {"type":"hidden", "name":"id", "show_label":"no"},
         {"type":"hidden", "name":"user", "show_label":"no"},
@@ -39,7 +39,8 @@
         {"type":"hidden", "label":"Duracion", "name":"duration", "show_label":"yes"},
         {"type":"email", "label":"Email", "name":"email", "normal":"yes", "show_label":"yes"},
         {"type":"text", "label":"Clave", "name":"password", "normal":"yes", "show_label":"yes"},
-        {"type":"hidden", "name":"last_screens", "show_label":"no"}
+        {"type":"hidden", "name":"last_screens", "show_label":"no"},
+        {"type":"number", "label":"Precio en Bs.", "name":"price", "normal":"yes", "show_label":"yes"}
     ]},
     "seller": {
         "label":"Vendedores",
@@ -54,7 +55,7 @@
         {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes", "show_label":"yes"},
         {"type":"text", "label":"CI", "name":"ci", "normal":"yes", "show_label":"yes"},
         {"type":"radio", "label":"Genero", "name":"gender", "value":"Man", "normal":"no", "show_label":"yes"},
-        {"type":"radio", "label":null, "name":"gender", "value":"Woman", "normal":"no", "show_label":"yes"}
+        {"type":"radio", "label":null, "name":"gender", "value":"Woman", "normal":"no", "show_label":"no"}
     ]}, 
     "payment_method": {
         "label":"Metodos de pago",
@@ -76,8 +77,8 @@
         {"type":"email", "label":"Email", "name":"email", "normal":"yes", "show_label":"yes"},
         {"type":"password", "label":"Clave", "name":"password", "normal":"yes", "show_label":"no"},
         {"type":"text", "label":"Telefono", "name":"phone", "normal":"yes", "show_label":"yes"}
-        ]
-    },
+    ]},
+
     "recharge_request": {
         "label":"Recarga de saldo",
         "query":"",
@@ -89,6 +90,5 @@
         {"type":"number", "label":"Monto (Bs.)", "name":"amount", "normal":"yes", "show_label":"yes"},
         {"type":"text", "label":"Referencia", "name":"reference", "normal":"yes", "show_label":"yes"},
         {"type":"hidden", "name":"status", "show_label":"no"}
-        ]
-    }
+    ]}
 }

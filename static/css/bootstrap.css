@@ -2442,8 +2442,6 @@ textarea.form-control-lg {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  -webkit-print-color-adjust: exact;
-  color-adjust: exact;
 }
 
 .form-check-input[type="checkbox"] {
@@ -6043,7 +6041,7 @@ fieldset:disabled .btn {
 }
 
 .modal-backdrop.show {
-  opacity: 0.5;
+  opacity: 0;
 }
 
 .modal-header {
@@ -6619,7 +6617,7 @@ fieldset:disabled .btn {
   align-items: center;
   -ms-flex-pack: center;
   justify-content: center;
-  width: 15%;
+  width: 1%;
   padding: 0;
   color: #fff;
   text-align: center;

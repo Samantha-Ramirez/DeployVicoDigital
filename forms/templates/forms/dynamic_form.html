@@ -26,7 +26,7 @@
 
 <div id="environment" value="{{environment}}" style="display: none;"> </div>
 
-<h2>Crear {{label}}</h2>
+<h2>{{type}} {{label}}</h2>
 
 <div class="card card-body">
     <form action ="{{link}}" method="POST" enctype="multipart/form-data">
@@ -55,7 +55,7 @@
                                 </div>
                                 <div id="checkboxes" class="form-check">
                                     {% for o in i.options %}
-                                        <label for="{{o.0}}"><input type="checkbox" value="{{o.0}}" class="form-check-input" name="{{i.name}}" required>
+                                        <label for="{{o.0}}"><input type="checkbox" value="{{o.0}}" class="form-check-input" name="{{i.name}}">
                                             {{o.2}}
                                         </label>
                                     {% endfor %}      

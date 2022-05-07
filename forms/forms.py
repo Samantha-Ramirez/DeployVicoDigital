@@ -28,7 +28,7 @@ def get_json_form(form):
     data = json.load(f)
     return data, f
 
-def form_select(formreq, table, user_type = None, id = None):
+def form_select(table):
     query = 'SELECT * FROM ' + table
     cur = mysql.connection.cursor()
     cur.execute(query)
@@ -74,7 +74,7 @@ def dynamic_form(form, formreq):
     for i in attrb:
         # Select
         if i['type'] == 'select' and i['selectTable'] != None:
-            i['options'] = form_select(formreq = formreq, table = i['selectTable'], user_type = session['user_type'], id = session['id'])
+            i['options'] = form_select(i['selectTable'])
 
         # Date
         elif i['type'] == 'date':
@@ -93,6 +93,7 @@ def add(form, formreq):
         attrb = data[formreq]['attributes']
         into = []
         values = []
+        
         for i in attrb:
             # USER
             if i['name'] == 'user':
@@ -141,8 +142,8 @@ def add(form, formreq):
                 values.append('"' + request.form[i['name']] + '"')
             # DURATION OF STREAMING ACCOUNT 
             elif formreq == 'streaming_account' and i['name'] == 'duration':
-                start = request.form[i['name']]
-                end = request.form[i['name']]
+                start = request.form['start_date']
+                end = request.form['end_date']
                 duration = platform_duration(start, end)
                 into.append(i['name']) 
                 values.append('"' + duration + '"')
@@ -157,10 +158,15 @@ def add(form, formreq):
                 values.append('"' + str(screen_amount) + '"')
 
         sep = ',' 
-        query = 'INSERT INTO ' + formreq + '(' + sep.join(into) + ') ' +  'VALUES (' + sep.join(values) + ')'
+        if formreq == 'client' or formreq == 'seller':
+            query = 'INSERT INTO user (' + sep.join(into) + ') ' +  'VALUES (' + sep.join(values) + ')'
+        else:
+            query = 'INSERT INTO ' + formreq + '(' + sep.join(into) + ') ' +  'VALUES (' + sep.join(values) + ')'
         cur = mysql.connection.cursor()
         cur.execute(query)
         mysql.connection.commit()
+
+        # RECHARGE REQUEST FEEDBACK
         if formreq == 'recharge_request':
             flash('Su petición está siendo procesada')  
             return redirect('/')
@@ -179,11 +185,11 @@ def add(form, formreq):
             mysql.connection.commit()
             plData = cur.fetchone()
             
-            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(saData[4]) + '"', '"' + str(saData[5]) + '"', '"' + str(saData[6]) + '"','"' + plData[3] + '"', '"' + saData[7] + '"', '"' + saData[8] + '"']
+            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(saData[4]) + '"', '"' + str(saData[5]) + '"', '"' + str(saData[6]) + '"','"' + plData[3] + '"', '"' + saData[7] + '"', '"' + saData[8] + '"', '"' + str(saData[10]) + '"']
             for x in range(1, plData[4] + 1):
                 values1.insert(1, '"' + str(x) + '"')
                 sep = ', '
-                query4 = 'INSERT INTO screen (account_id, number, platform, start_date, end_date, duration, url, email, password) VALUES (' + sep.join(values1) + ')'
+                query4 = 'INSERT INTO screen (account_id, profile, platform, start_date, end_date, duration, url, email, password, price) VALUES (' + sep.join(values1) + ')'
                 cur.execute(query4)
                 mysql.connection.commit()
                 del values1[1]
@@ -196,7 +202,10 @@ def edit(form, formreq, id):
     data, f = get_json_form(form)
     attrb = data[formreq]['attributes']
     label = data[formreq]['label']
-    query = 'SELECT * FROM ' + formreq + ' WHERE id = ' + id
+    if formreq == 'client' or formreq == 'seller':
+        query = 'SELECT * FROM user WHERE id = ' + id
+    else:
+        query = 'SELECT * FROM ' + formreq + ' WHERE id = ' + id
     cur = mysql.connection.cursor()
     cur.execute(query)
     mysql.connection.commit()
@@ -205,7 +214,7 @@ def edit(form, formreq, id):
     for i in attrb:
         # Select
         if i['type'] == 'select' and i['selectTable'] != None:
-            i['options'] = form_select(formreq = formreq, table = i['selectTable'], user_type = ['user_type'], id = ['id'])
+            i['options'] = form_select(i['selectTable'])
 
         # Date
         elif i['type'] == 'date':
@@ -215,7 +224,7 @@ def edit(form, formreq, id):
     link = '/forms/update/' + str(form) + '-' + str(formreq) + '/' + str(formData[0][0])
     type = 'Editar'
 
-    return render_template('forms/edit.html', rowToEdit = formData[0], attrb = attrb, formreq = formreq, form = form, user_type = session['user_type'], id = session['id'], label = label, link = link, type = type)
+    return render_template('forms/dynamic_form.html', rowToEdit = formData[0], attrb = attrb, formreq = formreq, form = form, user_type = session['user_type'], id = session['id'], label = label, link = link, type = type)
 
 @forms_bp.route('/update/<form>-<formreq>/<id>', methods=['GET', 'POST'])
 def update(form, formreq, id):
@@ -223,80 +232,75 @@ def update(form, formreq, id):
         data, f = get_json_form(form)
         attrb = data[formreq]['attributes']
         values = []
-        if formreq != 'request':
-            for i in attrb:
-                # USER
-                if i['name'] == 'user':
-                    string = i['name'] + ' = ' + '"' + str(session['id']) + '"'
+        for i in attrb:
+            # USER
+            if i['name'] == 'user':
+                string = i['name'] + ' = ' + '"' + str(session['id']) + '"'
+                values.append(string)
+            # USER_TYPE
+            elif (formreq == 'seller' or formreq == 'client') and i['name'] == 'user_type':
+                string = i['name'] + ' = ' + '"' + formreq + '"'
+                values.append(string)
+            # FILE
+            elif i['type'] == 'file':
+                file = request.files[i['name']]
+                fileName = secure_filename(file.filename)
+                route = path.abspath(path.join(basepath, "static\\img\\" + fileName))
+                file.save(route)
+                string = i['name'] + ' = ' + '"' + fileName + '"'
+                values.append(string)
+            # CHECKBOX AND RADIO
+            elif i['type'] == 'checkbox' or i['type'] == 'radio' :
+                if i['label'] != None:
+                    checkbox = request.form.getlist(i['name'])
+                    string = ', '.join(checkbox)
+                    string = i['name'] + ' = ' + '"' + string + '"'
                     values.append(string)
-                # USER_TYPE
-                elif (formreq == 'seller' or formreq == 'client') and i['name'] == 'user_type':
-                    string = i['name'] + ' = ' + '"' + formreq + '"'
-                    values.append(string)
-                # FILE
-                elif i['type'] == 'file':
-                    file = request.files[i['name']]
-                    fileName = secure_filename(file.filename)
-                    route = path.abspath(path.join(basepath, "static\\img\\" + fileName))
-                    file.save(route)
-                    string = i['name'] + ' = ' + '"' + fileName + '"'
-                    values.append(string)
-                # MULTIPLE SELECT
-                elif formreq == 'supplier' and i['name'] == 'platform_that_supplies':
-                    into.append(i['name'])
-                    platforms = request.form.getlist(i['name'])
-                    platforms_names = []
-                    for pl in platforms:
-                        query = 'SELECT name FROM platform WHERE id = ' + pl
-                        cur = mysql.connection.cursor()
-                        cur.execute(query)
-                        mysql.connection.commit()
-                        platforms_names.append(cur.fetchone()[0])
-                    string = ', '.join(platforms_names)
-                    values.append('"' + string + '"')
-                # CHECKBOX AND RADIO
-                elif i['type'] == 'checkbox' or i['type'] == 'radio' :
-                    if i['label'] != None:
-                        checkbox = request.form.getlist(i['name'])
-                        string = ', '.join(checkbox)
-                        string1 = i['name'] + ' = ' + '"' + string + '"'
-                        values.append(string1)
-                # GENERAL
-                elif i['type'] != 'hidden' and i['name'] != 'platform':
-                    # START AND END DATE
-                    if formreq == 'streaming_account' and i['name'] == 'start_date':
-                        start = request.form[i['name']]
-                    elif formreq == 'streaming_account' and i['name'] == 'end_date':
-                        end = request.form[i['name']]
-
-                    string = i['name'] + ' = ' + '"' + request.form[i['name']] + '"'
-                    values.append(string)
-                # DURATION OF STREAMING ACCOUNT 
-                elif formreq == 'streaming_account' and i['name'] == 'duration':
-                    duration = platform_duration(start, end)
-                    string = i['name'] + ' = ' + '"' + duration + '"'
-                    values.append(string)
-                # LAST SCREENS OF STREAMING ACCOUNT 
-                elif formreq == 'streaming_account' and i['name'] == 'last_screens':
-                    q = 'SELECT screen_amount FROM platform WHERE id = ' + request.form['select_platform']
+            # MULTIPLE SELECT
+            elif formreq == 'supplier' and i['name'] == 'platform_that_supplies':
+                into.append(i['name'])
+                platforms = request.form.getlist(i['name'])
+                platforms_names = []
+                for pl in platforms:
+                    query = 'SELECT name FROM platform WHERE id = ' + pl
                     cur = mysql.connection.cursor()
-                    cur.execute(q)
+                    cur.execute(query)
                     mysql.connection.commit()
-                    screen_amount = cur.fetchone()[0]
-                    values.append(i['name'] + ' = ' + '"' + str(screen_amount) + '"')
+                    platforms_names.append(cur.fetchone()[0])
+                string = ', '.join(platforms_names)
+                string = string = i['name'] + ' = ' + '"' + string + '"'
+                values.append(string)
+            # GENERAL
+            elif i['type'] != 'hidden' and i['name'] != 'platform':
+                string = i['name'] + ' = ' + '"' + request.form[i['name']] + '"'
+                values.append(string)
+            # DURATION OF STREAMING ACCOUNT 
+            elif formreq == 'streaming_account' and i['name'] == 'duration':
+                start = request.form['start_date']
+                end = request.form['end_date']
+                duration = platform_duration(start, end)
+                string = i['name'] + ' = ' + '"' + duration + '"'
+                values.append(string)
+            # LAST SCREENS OF STREAMING ACCOUNT 
+            elif formreq == 'streaming_account' and i['name'] == 'last_screens':
+                q = 'SELECT screen_amount FROM platform WHERE id = ' + request.form['select_platform']
+                cur = mysql.connection.cursor()
+                cur.execute(q)
+                mysql.connection.commit()
+                screen_amount = cur.fetchone()[0]
+                values.append(i['name'] + ' = ' + '"' + str(screen_amount) + '"')
 
-            sep = ', '
+        sep = ', '
+        if formreq == 'client' or formreq == 'seller':
+            query2 = 'UPDATE user SET ' + sep.join(values) + ' WHERE id = ' + id
+        else:
             query2 = 'UPDATE ' + formreq + ' SET ' + sep.join(values) + ' WHERE id = ' + id
-            cur = mysql.connection.cursor()
-            cur.execute(query2)
-            mysql.connection.commit()
-            flash('Editado exitosamente')
+        cur = mysql.connection.cursor()
+        cur.execute(query2)
+        mysql.connection.commit()
+        flash('Editado exitosamente')
 
-        if formreq == 'platform':
-            screen = request.form['screen_amount']
-            query2 = 'UPDATE streaming_account SET last_screens = ' + screen + ' WHERE select_platform = ' + id
-
-        elif formreq == 'streaming_account':
+        if formreq == 'streaming_account':
             query2 = 'SELECT * FROM streaming_account WHERE id=(SELECT MAX(id) FROM streaming_account)'
             cur.execute(query2)
             mysql.connection.commit()
@@ -311,11 +315,11 @@ def update(form, formreq, id):
             cur.execute(query4)
             mysql.connection.commit()
             
-            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(saData[4]) + '"', '"' + str(saData[5]) + '"', '"' + str(saData[6]) + '"','"' + plData[3] + '"', '"' + saData[7] + '"', '"' + saData[8] + '"']
+            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(saData[4]) + '"', '"' + str(saData[5]) + '"', '"' + str(saData[6]) + '"','"' + plData[3] + '"', '"' + saData[7] + '"', '"' + saData[8] + '"', '"' + str(saData[10]) + '"']
             for x in range(1, plData[4] + 1):
                 values1.insert(1, '"' + str(x) + '"')
                 sep = ', '
-                query4 = 'INSERT INTO screen (account_id, number, platform, start_date, end_date, duration, url, email, password) VALUES (' + sep.join(values1) + ')'
+                query4 = 'INSERT INTO screen (account_id, profile, platform, start_date, end_date, duration, url, email, password, price) VALUES (' + sep.join(values1) + ')'
                 cur.execute(query4)
                 mysql.connection.commit()
                 del values1[1]
@@ -324,7 +328,7 @@ def update(form, formreq, id):
         return redirect('/tables/dynamic_table/' + form + '-' + formreq)
 
 @forms_bp.route('/delete/<form>-<formreq>/<id>')
-def delete_contact(form, formreq, id):
+def delete(form, formreq, id):
     cur = mysql.connection.cursor()
     # DYNAMIC
     if formreq == 'streaming_account':
@@ -339,9 +343,30 @@ def delete_contact(form, formreq, id):
         query2 = 'DELETE FROM screen WHERE platform = ' + id
         cur.execute(query2)
         mysql.connection.commit()
+
+    elif formreq == 'supplier':
+        query1 = 'SELECT id FROM streaming_account WHERE select_supplier = ' + id 
+        cur.execute(query1)
+        mysql.connection.commit()
+        saId = cur.fetchone()
+        if saId:
+            query2 = 'DELETE FROM screen WHERE account_id = ' + str(saId[0])
+            cur.execute(query2)
+            mysql.connection.commit()
+            query3 = 'DELETE FROM streaming_account WHERE select_supplier = ' + id
+            cur.execute(query3)
+            mysql.connection.commit()
+    
+    elif formreq == 'client':
+        query1 = 'UPDATE screen SET client = NULL WHERE client = ' + id
+        cur.execute(query1)
+        mysql.connection.commit()
     
     # STATIC
-    query3 = 'DELETE FROM ' + formreq + ' WHERE id = ' + id
+    if formreq == 'client' or formreq == 'seller':
+        query3 = 'DELETE FROM user WHERE id = ' + id
+    else:
+        query3 = 'DELETE FROM ' + formreq + ' WHERE id = ' + id
     cur.execute(query3)
     mysql.connection.commit()
        

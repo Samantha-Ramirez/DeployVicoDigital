@@ -13,7 +13,7 @@
                             <p class="card-text"><small class="text-muted">{{n.2}}</small></p>
                         </div>
                         <div class="col-md-1">
-                            <button id="myId" type="submit" name="deleteNotification" class="btn btn-outline-danger btn-circle" value="{{n.0}}" onclick="fetchInfo(this)" style="border-radius: 15px; padding:0; font-size: 0rem;">
+                            <button id="myId" type="submit" name="deleteNotification" class="btn btn-outline-danger btn-circle" value="{{n.0}}" onclick="newNotifications(this)" style="border-radius: 15px; padding:0; font-size: 0rem;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
                                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
                                 </svg>
@@ -22,7 +22,7 @@
                     </div>
                 {% endfor %}
             {% else %}
-            No tienes notificaciones por el momento
+                No tienes notificaciones por el momento
             {% endif %}
         </div>
     </div>
@@ -30,53 +30,7 @@
 
 {% block body %}
 <script>
-    // Accordion function
-    var acc = document.getElementsByClassName("accordion");
-    var i;
-    for (i = 0; i < acc.length; i++){
-        acc[i].addEventListener("click", function(){
-            this.classList.toggle("actived");
-            var panel = this.nextElementSibling;
-            if (panel.style.maxHeight){
-                panel.style.maxHeight = null;
-            } else{
-                panel.style.maxHeight = panel.scrollHeight + "px";
-            }
-        });
-    }
-
-    // Notifications
-    async function fetchInfo(sel) {
-        var id = sel.value;
-        const response = await fetch(`/delete_notification/${id}`);
-        const newNotifications = await response.json();
-        let output = ``
-        if (newNotifications['newNotifications'][0] != null){
-            for (n in newNotifications['newNotifications']){
-            output = output + 
-            `
-            <div class="row">
-                <div class="col-md-11">
-                    ${newNotifications['newNotifications'][n][3]}
-                    <p class="card-text"><small class="text-muted"> ${newNotifications['newNotifications'][n][2]} </small></p>
-                </div>
-                <div class="col-md-1">
-                    <button id="myId" type="submit" name="deleteNotification" class="btn btn-outline-danger btn-circle" value="${newNotifications['newNotifications'][n][0]}" onclick="fetchInfo(this)" style="border-radius: 15px; padding:0; font-size: 0rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            `
-            } 
-        }else{
-            output = 'No tienes notificaciones por el momento'
-        }
-        document.getElementById('notifications').innerHTML = output
-    };
-
-    // Copy text
+    // Copy Text
     function copyToClipboard(text) {
         var sampleTextarea = document.createElement("textarea");
         document.body.appendChild(sampleTextarea);
@@ -90,9 +44,101 @@
         var copyText = document.getElementById(id);
         copyToClipboard(copyText.value);
     }
+
+    // Notifications
+    async function newNotifications(sel) {
+        var id = sel.value;
+        const response = await fetch(`/delete_notification/${id}`);
+        const newNotifications = await response.json();
+        let output = ``
+        if (newNotifications['newNotifications'][0] != null){
+            for (n in newNotifications['newNotifications']){
+                output = output + 
+                `
+                <div class="row">
+                    <div class="col-md-11">
+                        ${newNotifications['newNotifications'][n][3]}
+                        <p class="card-text"><small class="text-muted"> ${newNotifications['newNotifications'][n][2]} </small></p>
+                    </div>
+                    <div class="col-md-1">
+                        <button id="myId" type="submit" name="deleteNotification" class="btn btn-outline-danger btn-circle" value="${newNotifications['newNotifications'][n][0]}" onclick="fetchInfo(this)" style="border-radius: 15px; padding:0; font-size: 0rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                `
+            } 
+        }else{
+            output = 'No tienes notificaciones por el momento'
+        }
+        document.getElementById('notifications').innerHTML = output
+    };
+
+    // Modal 
+    function modal(id, title, body, footer, element) {
+        let output = `
+        <div class="modal fade" id="${element}${id}" tabindex="-1" role="dialog" aria-labelledby="${element}${id}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="${element}${id}">${title}</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ${body}
+                    </div>
+                    <div class="modal-footer">
+                        ${footer}
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <button data-toggle="modal" data-target="#${element}${id}" id="${element}Toggler${id}" style="display:none;"></button>`
+        document.getElementById(`${element}`).innerHTML = output
+        const modalToggler = document.getElementById(`${element}Toggler${id}`);
+        modalToggler.click();
+    };
+
+    // Are You Sure
+    function areYouSure(id, price) {
+        title = '¿Est&aacute; seguro?'
+        body = `El precio es Bs. ${price}.`
+        footer = `
+        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="buyAccount(${id})">S&iacute;</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>`
+        element = 'areYouSure' 
+        modal(id, title, body, footer, element)
+    };
+
+    // Buy Account
+    async function buyAccount(id) {
+        const response = await fetch(`/buy_account/${id}`);
+        const feedback = await response.json();
+        if(feedback['accepted'] === true){
+            title = 'Compra exitosa!'
+            body = feedback['screenData']
+            footer = `
+            <input type="hidden" value="${feedback['screenData']}" id="copy${id}">
+            <button type="button" class="btn btn-primary" onclick="copyText('copy${id}')">Copiar</button>`
+            element = 'buy'
+
+        }else if (feedback['accepted'] === false){
+            title = 'No puede comprar por saldo insuficiente'
+            body = 'Intente nuevamente luego de recargar su saldo'
+            footer = `<a class="btn btn-success" href="/forms/dynamic_form/st-recharge_request">Recargar saldo</a>`
+            element = 'notBuy'
+        }
+        modal(id, title, body, footer, element)
+    };
 </script>
 
 <div class="container">
+    <div id="areYouSure"></div>
+    <div id="notBuy"></div>
+    <div id="buy"></div>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     {% for message in messages %}
@@ -144,9 +190,9 @@
                                             <b>Fecha de inicio: </b>{{sc.1}} <br>
                                             <b>Fecha de fin: </b>{{sc.2}} <br>
                                             <b>Duraci&oacute;n: </b>{{sc.3}} <br>
-                                            <b>Precio: </b> 
+                                            <b>Precio: </b>Bs. {{sc.6}}
                                         </p>
-                                        <a class="btn btn-success" style="display: block; margin: 0 auto;">Comprar</a>
+                                        <a type="button" class="btn btn-success" style="display: block; margin: 0 auto;" onclick="areYouSure('{{sc.5}}', '{{sc.6}}')">Comprar</a>
                                     </div> 
                                 </div>
                             </div>
