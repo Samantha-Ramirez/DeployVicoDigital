@@ -30,7 +30,7 @@
 
 {% block body %}
 <script>
-    // Copy Text
+    // Copy text
     function copyToClipboard(text) {
         var sampleTextarea = document.createElement("textarea");
         document.body.appendChild(sampleTextarea);
@@ -106,9 +106,7 @@
     function areYouSure(id, price) {
         title = '¿Est&aacute; seguro?'
         body = `El precio es Bs. ${price}.`
-        footer = `
-        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="buyAccount(${id})">S&iacute;</button>
-        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>`
+        footer = ``
         element = 'areYouSure' 
         modal(id, title, body, footer, element)
     };

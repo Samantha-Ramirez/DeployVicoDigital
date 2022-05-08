@@ -35,9 +35,9 @@ def platform_duration(today, end):
     months = round(duration / 31)
 
     if months >= 1:
-        duration = str(months) + ' months'
+        duration = str(months) + ' meses'
     else:
-        duration = str(duration) + ' days'
+        duration = str(duration) + ' dias'
 
     return duration 
 
@@ -46,16 +46,16 @@ def screenData(scData):
     x = 0
     for sc in scData:
         sc = list(sc)
-        formatEnd = datetime.datetime.strptime(str(sc[3]), "%Y-%m-%d").strftime('%Y-%m-%d')
-        sc[3] = datetime.datetime.strptime(str(sc[3]), "%Y-%m-%d").strftime('%d-%m-%Y')
-        sc.insert(4, platform_duration(today, formatEnd))
-        phone = sc[6]
-        sc[6] = '+58' + phone[1:]
-        warning = f'''Estimado cliente {sc[5]}, su cuenta de {sc[1]} bajo el email {sc[7]} se vencerá en {sc[4]}, recuerde renovar a tiempo'''
-        sc.insert(8, warning)
+        sc[4] = datetime.datetime.strptime(str(sc[4]), "%Y-%m-%d").strftime("%Y-%m-%d")
+        sc.append(platform_duration(today, sc[4]))
+        phone = sc[7]
+        sc[7] = '+58' + phone[1:]
+        warning = f'''Estimado cliente {sc[6]}, su cuenta de {sc[1]} bajo el email {sc[2]} se vencerá en {sc[4]}, recuerde renovar a tiempo'''
+        sc.append(warning)
         scData[x] = sc
         x = x + 1
     return scData
+query1 = 'SELECT sc.id, pl.name, sc.email, sc.duration, sc.end_date, pl.file_name, us.username, us.phone FROM platform pl, screen sc, user us WHERE sc.platform = pl.id AND sc.client = us.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
 
 # PAGES
 @app.route('/')
@@ -70,7 +70,7 @@ def index():
             reqData = cur.fetchall()
 
             # ACTIVATED SCREENS DATA
-            query1 = 'SELECT pl.file_name, pl.name, sc.duration, sc.end_date, us.username, us.phone, sc.email, sc.id FROM platform pl, screen sc, user us WHERE sc.platform = pl.id AND sc.client = us.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
+            query1 = 'SELECT sc.id, pl.name, sc.email, sc.duration, sc.end_date, pl.file_name, us.username, us.phone FROM platform pl, screen sc, user us WHERE sc.platform = pl.id AND sc.client = us.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
             cur.execute(query1)
             mysql.connection.commit()
             scData = list(cur.fetchall())
@@ -112,6 +112,15 @@ def profile():
         mysql.connection.commit()
         account = cur.fetchone()
 
+        query1 = 'SELECT wl.amount, rr.date FROM wallet wl, recharge_request rr WHERE rr.user = ' + str(session['id']) + ' AND wl.user = ' + str(session['id']) + ' AND rr.date IN (SELECT max(date) FROM recharge_request)'
+        cur.execute(query1)
+        mysql.connection.commit()
+        money = cur.fetchone()
+        if money:
+            money = money
+        else:
+            money = ['Sin saldo', 'Usted no ha recargado']
+
         # SELLS TEAM
         query = 'SELECT * FROM user WHERE parent_id = ' + str(session['id'])
         cur = mysql.connection.cursor()
@@ -126,7 +135,7 @@ def profile():
         else: 
             link = 'http://vicoweb.pythonanywhere.com/referencelink'
 
-        return render_template('profile.html', account = account, link = link, id =  id, user_type = session['user_type'], dataTeam = dataTeam)
+        return render_template('profile.html', account = account, money = money, link = link, id =  id, user_type = session['user_type'], dataTeam = dataTeam)
     
     return redirect('/auth/login')
 
@@ -170,25 +179,31 @@ def buy_account(saId):
     query1 = 'SELECT amount FROM wallet WHERE user = ' + clId
     cur.execute(query1)
     mysql.connection.commit()
-    usAmount = cur.fetchone()[0]
+    usAmount = cur.fetchone()
 
     # COMPARATION
     feedback = ''
-    if saData[10] <= usAmount:
-        # ASIGN SCREEN
-        query2 = 'UPDATE screen SET client = ' + clId + ' WHERE id = (SELECT MIN(id) FROM screen WHERE account_id = ' + str(saId) + ' AND client IS NULL)'
+    if usAmount != None and saData[10] <= usAmount[0]:
+        newAmount = usAmount[0] - saData[10]
+        # SUBTRACTION
+        query2 = 'UPDATE wallet SET amount = ' + str(newAmount) + ' WHERE user = ' + clId
         cur.execute(query2)
+        mysql.connection.commit()
+
+        # ASIGN SCREEN
+        query3 = 'UPDATE screen SET client = ' + clId + ' WHERE id = (SELECT MIN(id) FROM screen WHERE account_id = ' + str(saId) + ' AND client IS NULL)'
+        cur.execute(query3)
         mysql.connection.commit()
 
         # LAST SCREENS - 1
         minur = saData[9] - 1
-        query3 = 'UPDATE streaming_account SET last_screens = "' + str(minur) + '" WHERE id = ' + str(saId)
-        cur.execute(query3)
+        query4 = 'UPDATE streaming_account SET last_screens = "' + str(minur) + '" WHERE id = ' + str(saId)
+        cur.execute(query4)
         mysql.connection.commit()
 
         # GIVE DATA OF SCREEN
-        query4 = 'SELECT pl.name, sc.*, us.username FROM screen sc, platform pl, user us WHERE pl.id = sc.platform AND sc.client = us.id AND sc.account_id = ' + str(saId) + ' AND sc.client = ' + clId
-        cur.execute(query4)
+        query5 = 'SELECT pl.name, sc.*, us.username FROM screen sc, platform pl, user us WHERE pl.id = sc.platform AND sc.client = us.id AND sc.account_id = ' + str(saId) + ' AND sc.client = ' + clId
+        cur.execute(query5)
         mysql.connection.commit()
         scData = cur.fetchone()
         screenData = f'''

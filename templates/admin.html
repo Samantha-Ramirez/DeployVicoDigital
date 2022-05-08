@@ -66,17 +66,17 @@
                 {% for sc in scData %}
                     <button class="accordion">
                         {% if environment == 'development' %}
-                            <img src="/forms/static/img/{{sc.0}}" width="30" height="30">
+                            <img src="/forms/static/img/{{sc.5}}" width="30" height="30">
                         {% else %}
-                            <img src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.0}}" width="30" height="30">
+                            <img src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.5}}" width="30" height="30">
                         {% endif %}
-                        {{sc.1}} {{sc.2}} | Vence el {{sc.3}} | Faltan {{sc.4}}
+                        {{sc.1}} {{sc.3}} | Vence el {{sc.4}} | Faltan {{sc.8}}
                     </button>
                     <div class="panel">
-                        <p>{{sc.1}}: {{sc.5}}, {{sc.6}}</p>
-                        <a class="btn btn-success" href="http://web.whatsapp.com/send?phone={{sc.6}}&text={{sc.8}}">Enviar cobro por WhatsApp</a>
-                        <input type="hidden" value="{{sc.8}}" id="{{sc.9}}">
-                        <button type="button" class="btn btn-primary" onclick="copyText('{{sc.9}}')">Copiar</button>
+                        <p>{{sc.1}}: {{sc.7}}, {{sc.2}}</p>
+                        <a class="btn btn-success" href="http://web.whatsapp.com/send?phone={{sc.7}}&text={{sc.9}}">Enviar cobro por WhatsApp</a>
+                        <input type="hidden" value="{{sc.9}}" id="warning{{sc.1}}">
+                        <button type="button" class="btn btn-primary" onclick="copyText('warning{{sc.1}}')">Copiar</button>
                     </div>
                 {% endfor %}
             </div>
