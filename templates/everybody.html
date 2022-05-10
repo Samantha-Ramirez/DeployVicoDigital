@@ -1,0 +1,153 @@
+{% extends "eb_layout.html" %}
+
+{% block title %}Inicio | Sistema Streaming{% endblock %}
+
+{% block body %}
+<script>
+    // Copy text
+    function copyToClipboard(text) {
+        var sampleTextarea = document.createElement("textarea");
+        document.body.appendChild(sampleTextarea);
+        sampleTextarea.value = text; //save main text in it
+        sampleTextarea.select(); //select textarea contenrs
+        document.execCommand("copy");
+        document.body.removeChild(sampleTextarea);
+    }
+
+    function copyText(id){
+        var copyText = document.getElementById(id);
+        copyToClipboard(copyText.value);
+    }
+
+    // Modal 
+    function modal(id, title, body, footer, element) {
+        let output = `
+        <div class="modal fade" id="${element}${id}" tabindex="-1" role="dialog" aria-labelledby="${element}${id}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="${element}${id}">${title}</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ${body}
+                    </div>
+                    <div class="modal-footer">
+                        ${footer}
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <button data-toggle="modal" data-target="#${element}${id}" id="${element}Toggler${id}" style="display:none;"></button>`
+        document.getElementById(`${element}`).innerHTML = output
+        const modalToggler = document.getElementById(`${element}Toggler${id}`);
+        modalToggler.click();
+    };
+
+    // Are You Sure
+    function areYouSure(id, price) {
+        title = '¿Est&aacute; seguro?'
+        body = `El precio es Bs. ${price}.`
+        footer = `
+        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="buyAccount(${id})">S&iacute;</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>`
+        element = 'areYouSure' 
+        modal(id, title, body, footer, element)
+    };
+
+    // Buy Account
+    async function buyAccount(id) {
+        const response = await fetch(`/buy_account/${id}`);
+        const feedback = await response.json();
+        if(feedback['accepted'] === true){
+            title = 'Compra exitosa!'
+            body = feedback['screenData']
+            footer = ``
+            element = 'buy'
+            modal(id, title, body, footer, element)
+        }else if (feedback['accepted'] === false){
+            title = 'No puede comprar por saldo insuficiente'
+            body = 'Intente nuevamente luego de recargar su saldo'
+            footer = `<a class="btn btn-success" href="/forms/dynamic_form/st-recharge_request">Recargar saldo</a>`
+            element = 'notBuy'
+            modal(id, title, body, footer, element)
+        }else if (feedback['accepted'] === 'login'){
+            window.location.href = '/auth/login'
+        }
+    };
+</script>
+
+<div class="container">
+    <div id="areYouSure"></div>
+    <div id="notBuy"></div>
+    <div id="buy"></div>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!--CATALOGO-->
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Pantallas disponibles</h3>
+            <div id="catalogue" class="carousel slide carousel-multi-item" data-ride="carousel">
+                <dynamic-control href="#catalogue"></dynamic-control>
+                
+                <div class="carousel-inner" role="listbox">
+                    {% for sc in scData %}
+                        {% if loop.first %}
+                            <div class="carousel-item active"> 
+                                <div class="row">       
+                        {% elif (loop.index - 1) % 4 == 0 %}
+                                </div>    
+                            </div>        
+                            <div class="carousel-item">
+                                <div class="row">
+                        {% endif %}              
+                        <div class="col-md-3">
+                            <div class="card">     
+                                {% if environment == 'development' %}
+                                    <img class="card-img-top" src="/forms/static/img/{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                {% else %}
+                                    <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                {% endif %}
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <a class="btn" data-toggle="collapse" href="#ct{{sc.5}}" role="button" aria-expanded="false" aria-controls="ct{{sc.5}}" style="display: block; margin: 0 auto;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+                                                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                            </svg>
+                                        </a> 
+                                    </p>
+                                    <div class="collapse" id="ct{{sc.5}}">
+                                        <h4 class="card-title">{{sc.0}}</h4>
+                                        <p class="card-text">
+                                            <b>Fecha de inicio: </b>{{sc.1}} <br>
+                                            <b>Fecha de fin: </b>{{sc.2}} <br>
+                                            <b>Duraci&oacute;n: </b>{{sc.3}} <br>
+                                            <b>Precio: </b>Bs. {{sc.6}}
+                                        </p>
+                                        <a type="button" class="btn btn-success" style="display: block; margin: 0 auto;" onclick="areYouSure('{{sc.5}}', '{{sc.6}}')">Comprar</a>
+                                    </div> 
+                                </div>
+                            </div>
+                        </div>
+                        {% if loop.last %}            
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

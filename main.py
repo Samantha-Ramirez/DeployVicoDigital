@@ -21,15 +21,15 @@ app.register_blueprint(tables_bp, url_prefix='/tables')
 
 # PAGE'S REQUIREMENTS
 def platform_duration(today, end):
-    year1 = int(today[0:4])
-    month1 = int(today[5:7])
-    day1 = int(today[8:10])
-    year2 = int(end[0:4])
-    month2 = int(end[5:7])
-    day2 = int(end[8:10])
+    year1 = int(today[0:2])
+    month1 = int(today[3:5])
+    day1 = int(today[6:10])
+    year2 = int(end[0:2])
+    month2 = int(end[3:5])
+    day2 = int(end[6:10])
                                         
-    d0 = date(year1, month1, day1)
-    d1 = date(year2, month2, day2)
+    d0 = date(day1, month1, year1)
+    d1 = date(day2, month2, year2)
     d3 = d1 - d0
     duration = d3.days
     months = round(duration / 31)
@@ -37,29 +37,57 @@ def platform_duration(today, end):
     if months >= 1:
         duration = str(months) + ' meses'
     else:
-        duration = str(duration) + ' dias'
+        duration = str(duration) + ' días'
 
     return duration 
 
-def screenData(scData):
-    today = date.today().strftime('%Y-%m-%d')
+def screenDataFormat(scData, all):
+    today = date.today().strftime('%d-%m-%Y')
     x = 0
     for sc in scData:
         sc = list(sc)
-        sc[4] = datetime.datetime.strptime(str(sc[4]), "%Y-%m-%d").strftime("%Y-%m-%d")
-        sc.append(platform_duration(today, sc[4]))
-        phone = sc[7]
-        sc[7] = '+58' + phone[1:]
-        warning = f'''Estimado cliente {sc[6]}, su cuenta de {sc[1]} bajo el email {sc[2]} se vencerá en {sc[4]}, recuerde renovar a tiempo'''
-        sc.append(warning)
+        sc[10] = datetime.datetime.strptime(str(sc[10]), "%Y-%m-%d").strftime("%d-%m-%Y")
+        sc[11] = datetime.datetime.strptime(str(sc[11]), "%Y-%m-%d").strftime("%d-%m-%Y")
+        sc.append(platform_duration(today, sc[11]))
+        if all == 'all':
+            sc[4] = datetime.datetime.strptime(str(sc[4]), "%Y-%m-%d").strftime("%d-%m-%Y")
+            sc.append(platform_duration(today, sc[4]))
+            phone = sc[7]
+            sc[7] = '+58' + phone[1:]
+            warning = f'''Estimado cliente {sc[6]}, su cuenta de {sc[1]} bajo el email {sc[2]} se vencerá en {sc[4]}, recuerde renovar a tiempo'''
+            sc.append(warning)
+        elif all == None:
+            duration = int(sc[18][0:2])
+            if duration <= 5:
+                badgeColor = 'danger'
+            elif duration <= 10:
+                badgeColor = 'warning'
+            else:
+                badgeColor = 'success'
+            sc.append(badgeColor)
         scData[x] = sc
         x = x + 1
     return scData
-query1 = 'SELECT sc.id, pl.name, sc.email, sc.duration, sc.end_date, pl.file_name, us.username, us.phone FROM platform pl, screen sc, user us WHERE sc.platform = pl.id AND sc.client = us.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
 
 # PAGES
 @app.route('/')
 def index():
+    # CATALOGE  
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT pl.name, sa.start_date, sa.end_date, sa.duration, pl.file_name, sa.id, sa.price FROM streaming_account sa, platform pl WHERE sa.select_platform = pl.id AND sa.last_screens != 0')
+    mysql.connection.commit()
+    dispSa = list(cur.fetchall())
+
+    # DATE FORMAT
+    x = 0
+    for sa in dispSa:
+        sa = list(sa)
+        sa[1] = datetime.datetime.strptime(str(sa[1]), "%Y-%m-%d").strftime('%d-%m-%Y')
+        sa[2] = datetime.datetime.strptime(str(sa[2]), "%Y-%m-%d").strftime('%d-%m-%Y')
+        dispSa[x] = sa
+        x = x + 1
+
+    # DIFFERENT VIEWS
     if 'loggedin' in session:
         if session['user_type'] == 'admin':
             # REQUEST DATA
@@ -73,34 +101,27 @@ def index():
             query1 = 'SELECT sc.id, pl.name, sc.email, sc.duration, sc.end_date, pl.file_name, us.username, us.phone FROM platform pl, screen sc, user us WHERE sc.platform = pl.id AND sc.client = us.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
             cur.execute(query1)
             mysql.connection.commit()
-            scData = list(cur.fetchall())
-            scData = screenData(scData)
+            actSc = list(cur.fetchall())
+            actSc = screenDataFormat(actSc, 'all')
                 
-            return render_template('admin.html', username = session['username'], user_type = session['user_type'], reqData = reqData, scData = scData, environment = environment)
+            return render_template('admin.html', username = session['username'], user_type = session['user_type'], reqData = reqData, actSc = actSc, environment = environment)
         
         elif session['user_type'] == 'seller' or session['user_type'] == 'client':
-            # CATALOGE  
-            cur = mysql.connection.cursor()
-            cur.execute('SELECT pl.name, sa.start_date, sa.end_date, sa.duration, pl.file_name, sa.id, sa.price FROM streaming_account sa, platform pl WHERE sa.select_platform = pl.id')
-            mysql.connection.commit()
-            scData = list(cur.fetchall())
-            # DATE FORMAT
-            x = 0
-            for sc in scData:
-                sc = list(sc)
-                sc[1] = datetime.datetime.strptime(str(sc[1]), "%Y-%m-%d").strftime('%d-%m-%Y')
-                sc[2] = datetime.datetime.strptime(str(sc[2]), "%Y-%m-%d").strftime('%d-%m-%Y')
-                scData[x] = sc
-                x = x + 1
-
             # NOTIFICATIONS
             query = 'SELECT * FROM notifications nt, user us WHERE nt.user = us.id AND us.id = ' + str(session['id'])
             cur.execute(query)
             mysql.connection.commit()
             notifications = cur.fetchall()
 
-            return render_template('user.html', username = session['username'], scData = scData, environment = environment, notifications = notifications)
-    return redirect('/auth/login')
+            # ACTIVATED SCREENS DATA
+            query1 = 'SELECT * FROM platform pl, screen sc WHERE sc.platform = pl.id AND sc.client = ' + str(session['id']) + ' ORDER BY sc.start_date'
+            cur.execute(query1)
+            mysql.connection.commit()
+            actSc = list(cur.fetchall())
+            actSc = screenDataFormat(actSc, None)
+
+            return render_template('user.html', username = session['username'], dispSa = dispSa, actSc = actSc, environment = environment, notifications = notifications)
+    return render_template('everybody.html', dispSa = dispSa, environment = environment)
 
 @app.route('/profile')
 def profile():
@@ -167,62 +188,65 @@ def delete_notification(id):
 
 @app.route('/buy_account/<saId>', methods=['GET', 'POST'])
 def buy_account(saId):
-    cur = mysql.connection.cursor()
-    # ACCOUNT DATA
-    query = 'SELECT * FROM streaming_account WHERE id = ' + str(saId)
-    cur.execute(query)
-    mysql.connection.commit()
-    saData = cur.fetchone()
-
-    # WALLET
-    clId = str(session['id'])
-    query1 = 'SELECT amount FROM wallet WHERE user = ' + clId
-    cur.execute(query1)
-    mysql.connection.commit()
-    usAmount = cur.fetchone()
-
-    # COMPARATION
-    feedback = ''
-    if usAmount != None and saData[10] <= usAmount[0]:
-        newAmount = usAmount[0] - saData[10]
-        # SUBTRACTION
-        query2 = 'UPDATE wallet SET amount = ' + str(newAmount) + ' WHERE user = ' + clId
-        cur.execute(query2)
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
+        # ACCOUNT DATA
+        query = 'SELECT * FROM streaming_account WHERE id = ' + str(saId)
+        cur.execute(query)
         mysql.connection.commit()
+        saData = cur.fetchone()
 
-        # ASIGN SCREEN
-        query3 = 'UPDATE screen SET client = ' + clId + ' WHERE id = (SELECT MIN(id) FROM screen WHERE account_id = ' + str(saId) + ' AND client IS NULL)'
-        cur.execute(query3)
+        # WALLET
+        clId = str(session['id'])
+        query1 = 'SELECT amount FROM wallet WHERE user = ' + clId
+        cur.execute(query1)
         mysql.connection.commit()
+        usAmount = cur.fetchone()
 
-        # LAST SCREENS - 1
-        minur = saData[9] - 1
-        query4 = 'UPDATE streaming_account SET last_screens = "' + str(minur) + '" WHERE id = ' + str(saId)
-        cur.execute(query4)
-        mysql.connection.commit()
+        # COMPARATION
+        if usAmount != None and saData[10] <= usAmount[0]:
+            newAmount = usAmount[0] - saData[10]
+            # SUBTRACTION
+            query2 = 'UPDATE wallet SET amount = ' + str(newAmount) + ' WHERE user = ' + clId
+            cur.execute(query2)
+            mysql.connection.commit()
 
-        # GIVE DATA OF SCREEN
-        query5 = 'SELECT pl.name, sc.*, us.username FROM screen sc, platform pl, user us WHERE pl.id = sc.platform AND sc.client = us.id AND sc.account_id = ' + str(saId) + ' AND sc.client = ' + clId
-        cur.execute(query5)
-        mysql.connection.commit()
-        scData = cur.fetchone()
-        screenData = f'''
-        <b>Acceso a su perfil de {scData[0]}</b><br>
-        <b>Inicio: </b>{scData[5]}<br>
-        <b>Fin: </b>{scData[6]}<br>
-        🔊 Si ha usado {scData[0]} antes debe borrar los archivos temporales de su navegador y si es una aplicación debe volverla a instalar, si es Smart TV, cerrar la aplicación apague y encienda el televisor ¡No comparta su clave! Ya que {scData[0]} solo permite un máximo de usuarios en la cuenta. Si comparte la cuenta tendremos que suspender y cambiar las claves de acceso.<br>
-        <b>URL: </b>{scData[8]}<br>
-        <b>Email: </b>{scData[9]}<br>
-        <b>Clave: </b>{scData[10]}<br>
-        <b>Perfil: </b>{scData[3]}<br>
-        <b>📣 TÉRMINOS Y CONDICIONES</b><br>
-        1. No modifique ninguna información sobre la cuenta.<br>
-        2. No cambie el correo electrónico o la contraseña de su cuenta.<br>
-        3. No agregue ni elimine perfiles.<br>
-        4. Este es un producto digital. Entonces, después de la compra, no se puede hacer un reembolso. Solo garantía de reemplazo.'''
-        accepted = True
+            # ASIGN SCREEN
+            query3 = 'UPDATE screen SET client = ' + clId + ' WHERE id = (SELECT MIN(id) FROM screen WHERE account_id = ' + str(saId) + ' AND client IS NULL)'
+            cur.execute(query3)
+            mysql.connection.commit()
+
+            # LAST SCREENS - 1
+            minur = saData[9] - 1
+            query4 = 'UPDATE streaming_account SET last_screens = "' + str(minur) + '" WHERE id = ' + str(saId)
+            cur.execute(query4)
+            mysql.connection.commit()
+
+            # GIVE DATA OF SCREEN
+            query5 = 'SELECT pl.name, sc.*, us.username FROM screen sc, platform pl, user us WHERE pl.id = sc.platform AND sc.client = us.id AND sc.account_id = ' + str(saId) + ' AND sc.client = ' + clId
+            cur.execute(query5)
+            mysql.connection.commit()
+            scData = cur.fetchone()
+            screenData = f'''
+            <b>Acceso a su perfil de {scData[0]}</b><br>
+            <b>Inicio: </b>{scData[5]}<br>
+            <b>Fin: </b>{scData[6]}<br>
+            🔊 Si ha usado {scData[0]} antes debe borrar los archivos temporales de su navegador y si es una aplicación debe volverla a instalar, si es Smart TV, cerrar la aplicación apague y encienda el televisor ¡No comparta su clave! Ya que {scData[0]} solo permite un máximo de usuarios en la cuenta. Si comparte la cuenta tendremos que suspender y cambiar las claves de acceso.<br>
+            <b>URL: </b>{scData[8]}<br>
+            <b>Email: </b>{scData[9]}<br>
+            <b>Clave: </b>{scData[10]}<br>
+            <b>Perfil: </b>{scData[3]}<br>
+            <b>📣 TÉRMINOS Y CONDICIONES</b><br>
+            1. No modifique ninguna información sobre la cuenta.<br>
+            2. No cambie el correo electrónico o la contraseña de su cuenta.<br>
+            3. No agregue ni elimine perfiles.<br>
+            4. Este es un producto digital. Entonces, después de la compra, no se puede hacer un reembolso. Solo garantía de reemplazo.'''
+        else:
+            accepted = False
+            screenData = None
+        return feedback
     else:
-        accepted = False
+        accepted = 'login'
         screenData = None
     feedback = {'accepted': accepted, 'screenData': screenData}
     return feedback

@@ -106,7 +106,9 @@
     function areYouSure(id, price) {
         title = '¿Est&aacute; seguro?'
         body = `El precio es Bs. ${price}.`
-        footer = ``
+        footer = `
+        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="buyAccount(${id})">S&iacute;</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>`
         element = 'areYouSure' 
         modal(id, title, body, footer, element)
     };
@@ -118,9 +120,7 @@
         if(feedback['accepted'] === true){
             title = 'Compra exitosa!'
             body = feedback['screenData']
-            footer = `
-            <input type="hidden" value="${feedback['screenData']}" id="copy${id}">
-            <button type="button" class="btn btn-primary" onclick="copyText('copy${id}')">Copiar</button>`
+            footer = ``
             element = 'buy'
 
         }else if (feedback['accepted'] === false){
@@ -157,7 +157,7 @@
                 <dynamic-control href="#catalogue"></dynamic-control>
                 
                 <div class="carousel-inner" role="listbox">
-                    {% for sc in scData %}
+                    {% for sa in dispSa %}
                         {% if loop.first %}
                             <div class="carousel-item active"> 
                                 <div class="row">       
@@ -170,27 +170,27 @@
                         <div class="col-md-3">
                             <div class="card">     
                                 {% if environment == 'development' %}
-                                    <img class="card-img-top" src="/forms/static/img/{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                    <img class="card-img-top" src="/forms/static/img/{{sa.4}}" alt="Card image cap" width="500" height="200">
                                 {% else %}
-                                    <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                    <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sa.4}}" alt="Card image cap" width="500" height="200">
                                 {% endif %}
                                 <div class="card-body">
                                     <p class="card-text">
-                                        <a class="btn" data-toggle="collapse" href="#ct{{sc.5}}" role="button" aria-expanded="false" aria-controls="ct{{sc.5}}" style="display: block; margin: 0 auto;">
+                                        <a class="btn" data-toggle="collapse" href="#ct{{sa.5}}" role="button" aria-expanded="false" aria-controls="ct{{sa.5}}" style="display: block; margin: 0 auto;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
                                                 <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
                                             </svg>
                                         </a> 
                                     </p>
-                                    <div class="collapse" id="ct{{sc.5}}">
-                                        <h4 class="card-title">{{sc.0}}</h4>
+                                    <div class="collapse" id="ct{{sa.5}}">
+                                        <h4 class="card-title">{{sa.0}}</h4>
                                         <p class="card-text">
-                                            <b>Fecha de inicio: </b>{{sc.1}} <br>
-                                            <b>Fecha de fin: </b>{{sc.2}} <br>
-                                            <b>Duraci&oacute;n: </b>{{sc.3}} <br>
-                                            <b>Precio: </b>Bs. {{sc.6}}
+                                            <b>Fecha de inicio: </b>{{sa.1}} <br>
+                                            <b>Fecha de fin: </b>{{sa.2}} <br>
+                                            <b>Duraci&oacute;n: </b>{{sa.3}} <br>
+                                            <b>Precio: </b>Bs. {{sa.6}}
                                         </p>
-                                        <a type="button" class="btn btn-success" style="display: block; margin: 0 auto;" onclick="areYouSure('{{sc.5}}', '{{sc.6}}')">Comprar</a>
+                                        <a type="button" class="btn btn-success" style="display: block; margin: 0 auto;" onclick="areYouSure('{{sa.5}}', '{{sa.6}}')">Comprar</a>
                                     </div> 
                                 </div>
                             </div>
@@ -214,7 +214,7 @@
                     <dynamic-control href="#activedScreens"></dynamic-control>
                     
                     <div class="carousel-inner" role="listbox">
-                        {% for sc in scData %}
+                        {% for sc in actSc %}
                             {% if loop.first %}
                                 <div class="carousel-item active"> 
                                     <div class="row">       
@@ -227,27 +227,31 @@
                             <div class="col-md-3">
                                 <div class="card">     
                                     {% if environment == 'development' %}
-                                        <img class="card-img-top" src="/forms/static/img/{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                        <img class="card-img-top" src="/forms/static/img/{{sc.5}}" alt="Card image cap" width="500" height="200">
                                     {% else %}
-                                        <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                        <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.5}}" alt="Card image cap" width="500" height="200">
                                     {% endif %}
                                     <div class="card-body">
                                         <p class="card-text">
-                                            <a class="btn" data-toggle="collapse" href="#as{{sc.5}}" role="button" aria-expanded="false" aria-controls="as{{sc.5}}" style="display: block; margin: 0 auto;">
+                                            <a class="btn" data-toggle="collapse" href="#as{{sc.6}}" role="button" aria-expanded="false" aria-controls="as{{sc.6}}" style="display: block; margin: 0 auto;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
                                                     <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
                                                 </svg>
                                             </a> 
                                         </p>
-                                        <div class="collapse" id="as{{sc.5}}">
-                                            <h4 class="card-title">{{sc.0}}</h4>
+                                        <div class="collapse" id="as{{sc.6}}">
+                                            <a href="{{sc.13}}" target="_blank">
+                                                <h4 class="card-title">{{sc.2}}</h4>
+                                            </a>
                                             <p class="card-text">
-                                                <b>Fecha de inicio: </b>{{sc.1}} <br>
-                                                <b>Fecha de fin: </b>{{sc.2}} <br>
-                                                <b>Duraci&oacute;n: </b>{{sc.3}} <br>
-                                                <b>Precio: </b> 
+                                                <b>Fecha de inicio: </b>{{sc.10}} <br>
+                                                <b>Fecha de fin: </b>{{sc.11}} <br>
+                                                <b>Faltan: </b> <span class="badge bg-{{sc.19}}">{{sc.18}}</span> <br>
+                                                <b>Email: </b>{{sc.14}} <br>
+                                                <b>Clave: </b>{{sc.15}} <br>
+                                                <b>Pago mensual: </b>
                                             </p>
-                                            <a class="btn btn-success" style="display: block; margin: 0 auto;">Comprar</a>
+                                            <a class="btn btn-primary" style="display: block; margin: 0 auto;">Pago mensual</a>
                                         </div> 
                                     </div>
                                 </div>
