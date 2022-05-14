@@ -46,18 +46,18 @@ def screenDataFormat(scData, all):
     x = 0
     for sc in scData:
         sc = list(sc)
-        sc[10] = datetime.datetime.strptime(str(sc[10]), "%Y-%m-%d").strftime("%d-%m-%Y")
-        sc[11] = datetime.datetime.strptime(str(sc[11]), "%Y-%m-%d").strftime("%d-%m-%Y")
-        sc.append(platform_duration(today, sc[11]))
         if all == 'all':
             sc[4] = datetime.datetime.strptime(str(sc[4]), "%Y-%m-%d").strftime("%d-%m-%Y")
             sc.append(platform_duration(today, sc[4]))
             phone = sc[7]
             sc[7] = '+58' + phone[1:]
-            warning = f'''Estimado cliente {sc[6]}, su cuenta de {sc[1]} bajo el email {sc[2]} se vencerá en {sc[4]}, recuerde renovar a tiempo'''
+            warning = f'''Estimado cliente {sc[6]}, su cuenta de {sc[1]} bajo el email {sc[2]} se vencerá el {sc[4]}, recuerde renovar a tiempo'''
             sc.append(warning)
         elif all == None:
-            duration = int(sc[18][0:2])
+            sc[10] = datetime.datetime.strptime(str(sc[10]), "%Y-%m-%d").strftime("%d-%m-%Y")
+            sc[11] = datetime.datetime.strptime(str(sc[11]), "%Y-%m-%d").strftime("%d-%m-%Y")
+            sc.append(platform_duration(today, sc[11]))
+            duration = int(sc[26][0:2])
             if duration <= 5:
                 badgeColor = 'danger'
             elif duration <= 10:
@@ -98,7 +98,7 @@ def index():
             reqData = cur.fetchall()
 
             # ACTIVATED SCREENS DATA
-            query1 = 'SELECT sc.id, pl.name, sc.email, sc.duration, sc.end_date, pl.file_name, us.username, us.phone FROM platform pl, screen sc, user us WHERE sc.platform = pl.id AND sc.client = us.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
+            query1 = 'SELECT sc.id, pl.name, sa.email, sc.duration, sc.end_date, pl.file_name, us.username, us.phone, us.email FROM platform pl, screen sc, user us, streaming_account sa WHERE sc.platform = pl.id AND sc.client = us.id AND sc.account_id = sa.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
             cur.execute(query1)
             mysql.connection.commit()
             actSc = list(cur.fetchall())
@@ -114,7 +114,7 @@ def index():
             notifications = cur.fetchall()
 
             # ACTIVATED SCREENS DATA
-            query1 = 'SELECT * FROM platform pl, screen sc WHERE sc.platform = pl.id AND sc.client = ' + str(session['id']) + ' ORDER BY sc.start_date'
+            query1 = 'SELECT * FROM platform pl, screen sc, streaming_account sa WHERE sc.platform = pl.id AND sc.account_id = sa.id AND sc.client = ' + str(session['id']) + ' ORDER BY sc.start_date'
             cur.execute(query1)
             mysql.connection.commit()
             actSc = list(cur.fetchall())

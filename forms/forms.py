@@ -306,23 +306,11 @@ def update(form, formreq, id):
             mysql.connection.commit()
             saData = cur.fetchone()
 
-            query3 = 'SELECT * FROM platform WHERE id = ' + str(saData[2])
-            cur.execute(query3)
-            mysql.connection.commit()
-            plData = cur.fetchone()
-
-            query4 = 'DELETE FROM screen WHERE account_id = ' + id
-            cur.execute(query4)
-            mysql.connection.commit()
-            
-            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(saData[4]) + '"', '"' + str(saData[5]) + '"', '"' + str(saData[6]) + '"','"' + plData[3] + '"', '"' + saData[7] + '"', '"' + saData[8] + '"', '"' + str(saData[10]) + '"']
-            for x in range(1, plData[4] + 1):
-                values1.insert(1, '"' + str(x) + '"')
-                sep = ', '
-                query4 = 'INSERT INTO screen (account_id, profile, platform, start_date, end_date, duration, url, email, password, price) VALUES (' + sep.join(values1) + ')'
+            for x in range(1, saData[9] + 1):
+                values1 = f'''platform = "{str(saData[2])}", duration = "{str(saData[6])}"'''
+                query4 = 'UPDATE screen SET ' + values1 + ' WHERE account_id = ' + id + ' AND profile = ' + str(x)
                 cur.execute(query4)
                 mysql.connection.commit()
-                del values1[1]
 
         f.close()
         return redirect('/tables/dynamic_table/' + form + '-' + formreq)

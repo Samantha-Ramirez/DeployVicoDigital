@@ -1,0 +1,1 @@
+CREATE DEFINER=`root`@`localhost` EVENT `deleteAccounts` ON SCHEDULE EVERY 1 WEEK STARTS '2022-05-13 16:06:20' ON COMPLETION PRESERVE ENABLE DO DELETE FROM streaming_account WHERE last_screens = 0
