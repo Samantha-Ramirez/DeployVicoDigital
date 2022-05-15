@@ -140,13 +140,6 @@ def add(form, formreq):
             elif i['type'] != 'hidden' and i['name'] != 'platform':
                 into.append(i['name']) 
                 values.append('"' + request.form[i['name']] + '"')
-            # DURATION OF STREAMING ACCOUNT 
-            elif formreq == 'streaming_account' and i['name'] == 'duration':
-                start = request.form['start_date']
-                end = request.form['end_date']
-                duration = platform_duration(start, end)
-                into.append(i['name']) 
-                values.append('"' + duration + '"')
             # LAST SCREENS OF STREAMING ACCOUNT 
             elif formreq == 'streaming_account' and i['name'] == 'last_screens':
                 into.append(i['name']) 
@@ -185,12 +178,12 @@ def add(form, formreq):
             mysql.connection.commit()
             plData = cur.fetchone()
             
-            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(saData[4]) + '"', '"' + str(saData[5]) + '"', '"' + str(saData[6]) + '"','"' + plData[3] + '"', '"' + saData[7] + '"', '"' + saData[8] + '"', '"' + str(saData[10]) + '"']
+            values1 = ['"' + str(saData[0]) + '"', '"' + str(saData[2]) + '"', '"' + str(saData[4]) + '"', '"' + str(saData[5]) + '"']
             for x in range(1, plData[4] + 1):
                 values1.insert(1, '"' + str(x) + '"')
                 sep = ', '
-                query4 = 'INSERT INTO screen (account_id, profile, platform, start_date, end_date, duration, url, email, password, price) VALUES (' + sep.join(values1) + ')'
-                cur.execute(query4)
+                query3 = 'INSERT INTO screen (account_id, profile, platform, start_date, end_date) VALUES (' + sep.join(values1) + ')'
+                cur.execute(query3)
                 mysql.connection.commit()
                 del values1[1]
                     
@@ -274,13 +267,6 @@ def update(form, formreq, id):
             elif i['type'] != 'hidden' and i['name'] != 'platform':
                 string = i['name'] + ' = ' + '"' + request.form[i['name']] + '"'
                 values.append(string)
-            # DURATION OF STREAMING ACCOUNT 
-            elif formreq == 'streaming_account' and i['name'] == 'duration':
-                start = request.form['start_date']
-                end = request.form['end_date']
-                duration = platform_duration(start, end)
-                string = i['name'] + ' = ' + '"' + duration + '"'
-                values.append(string)
             # LAST SCREENS OF STREAMING ACCOUNT 
             elif formreq == 'streaming_account' and i['name'] == 'last_screens':
                 q = 'SELECT screen_amount FROM platform WHERE id = ' + request.form['select_platform']
@@ -299,18 +285,6 @@ def update(form, formreq, id):
         cur.execute(query2)
         mysql.connection.commit()
         flash('Editado exitosamente')
-
-        if formreq == 'streaming_account':
-            query2 = 'SELECT * FROM streaming_account WHERE id=(SELECT MAX(id) FROM streaming_account)'
-            cur.execute(query2)
-            mysql.connection.commit()
-            saData = cur.fetchone()
-
-            for x in range(1, saData[9] + 1):
-                values1 = f'''platform = "{str(saData[2])}", duration = "{str(saData[6])}"'''
-                query4 = 'UPDATE screen SET ' + values1 + ' WHERE account_id = ' + id + ' AND profile = ' + str(x)
-                cur.execute(query4)
-                mysql.connection.commit()
 
         f.close()
         return redirect('/tables/dynamic_table/' + form + '-' + formreq)

@@ -28,7 +28,7 @@
     ]},  
     "streaming_account": {
         "label":"Cuentas streaming",
-        "query":"SELECT sa.id, sa.user, sp.name, sup.name, sa.start_date, sa.end_date, sa.duration, sa.email, sa.password, sa.price FROM streaming_account sa, platform sp, supplier sup WHERE sa.select_platform = sp.id AND sa.select_supplier = sup.id ORDER BY sa.id ASC",
+        "query":"SELECT sa.id, sa.user, sp.name, sup.name, sa.start_date, sa.end_date, sa.email, sa.password, sa.price FROM streaming_account sa, platform sp, supplier sup WHERE sa.select_platform = sp.id AND sa.select_supplier = sup.id ORDER BY sa.id ASC",
         "attributes":[
         {"type":"hidden", "name":"id", "show_label":"no"},
         {"type":"hidden", "name":"user", "show_label":"no"},
@@ -36,7 +36,6 @@
         {"type":"select", "label":"Proveedor", "name":"select_supplier", "selectTable":"supplier", "normal":"no", "show_label":"yes"},
         {"type":"date", "label":"Fecha de inicio", "name":"start_date", "normal":"no", "show_label":"yes"},
         {"type":"date", "label":"Fecha de fin", "name":"end_date", "normal":"no", "show_label":"yes"},
-        {"type":"hidden", "label":"Duracion", "name":"duration", "show_label":"yes"},
         {"type":"email", "label":"Email", "name":"email", "normal":"yes", "show_label":"yes"},
         {"type":"text", "label":"Clave", "name":"password", "normal":"yes", "show_label":"yes"},
         {"type":"hidden", "name":"last_screens", "show_label":"no"},

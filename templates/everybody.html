@@ -102,7 +102,7 @@
                 <dynamic-control href="#catalogue"></dynamic-control>
                 
                 <div class="carousel-inner" role="listbox">
-                    {% for sc in scData %}
+                    {% for sa in dispSa %}
                         {% if loop.first %}
                             <div class="carousel-item active"> 
                                 <div class="row">       
@@ -115,27 +115,27 @@
                         <div class="col-md-3">
                             <div class="card">     
                                 {% if environment == 'development' %}
-                                    <img class="card-img-top" src="/forms/static/img/{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                    <img class="card-img-top" src="/forms/static/img/{{sa.5}}" alt="Card image cap" width="500" height="200">
                                 {% else %}
-                                    <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.4}}" alt="Card image cap" width="500" height="200">
+                                    <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sa.5}}" alt="Card image cap" width="500" height="200">
                                 {% endif %}
                                 <div class="card-body">
                                     <p class="card-text">
-                                        <a class="btn" data-toggle="collapse" href="#ct{{sc.5}}" role="button" aria-expanded="false" aria-controls="ct{{sc.5}}" style="display: block; margin: 0 auto;">
+                                        <a class="btn" data-toggle="collapse" href="#ct{{sa.0}}" role="button" aria-expanded="false" aria-controls="ct{{sa.0}}" style="display: block; margin: 0 auto;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
                                                 <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
                                             </svg>
                                         </a> 
                                     </p>
-                                    <div class="collapse" id="ct{{sc.5}}">
-                                        <h4 class="card-title">{{sc.0}}</h4>
+                                    <div class="collapse" id="ct{{sa.0}}">
+                                        <h4 class="card-title">{{sa.1}}</h4>
                                         <p class="card-text">
-                                            <b>Fecha de inicio: </b>{{sc.1}} <br>
-                                            <b>Fecha de fin: </b>{{sc.2}} <br>
-                                            <b>Duraci&oacute;n: </b>{{sc.3}} <br>
-                                            <b>Precio: </b>Bs. {{sc.6}}
+                                            <b>Fecha de inicio: </b>{{sa.2}} <br>
+                                            <b>Fecha de fin: </b>{{sa.3}} <br>
+                                            <b>Duraci&oacute;n: </b>{{sa.6}} <br>
+                                            <b>Precio: </b>Bs. {{sa.4}}
                                         </p>
-                                        <a type="button" class="btn btn-success" style="display: block; margin: 0 auto;" onclick="areYouSure('{{sc.5}}', '{{sc.6}}')">Comprar</a>
+                                        <a type="button" class="btn btn-success" style="display: block; margin: 0 auto;" onclick="areYouSure('{{sa.0}}', '{{sa.4}}')">Comprar</a>
                                     </div> 
                                 </div>
                             </div>

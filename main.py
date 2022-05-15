@@ -41,26 +41,30 @@ def platform_duration(today, end):
 
     return duration 
 
-def screenDataFormat(scData, all):
+def screenDataFormat(scData, user_type):
     today = date.today().strftime('%d-%m-%Y')
     x = 0
     for sc in scData:
         sc = list(sc)
-        if all == 'all':
+        if user_type == 'admin':
+            sc[3] = datetime.datetime.strptime(str(sc[3]), "%Y-%m-%d").strftime("%d-%m-%Y")
             sc[4] = datetime.datetime.strptime(str(sc[4]), "%Y-%m-%d").strftime("%d-%m-%Y")
+            # ADD DURATION
+            sc.append(platform_duration(sc[3], sc[4]))
+            # ADD DAYS LEFT 
             sc.append(platform_duration(today, sc[4]))
             phone = sc[7]
             sc[7] = '+58' + phone[1:]
             warning = f'''Estimado cliente {sc[6]}, su cuenta de {sc[1]} bajo el email {sc[2]} se vencerá el {sc[4]}, recuerde renovar a tiempo'''
             sc.append(warning)
-        elif all == None:
-            sc[10] = datetime.datetime.strptime(str(sc[10]), "%Y-%m-%d").strftime("%d-%m-%Y")
-            sc[11] = datetime.datetime.strptime(str(sc[11]), "%Y-%m-%d").strftime("%d-%m-%Y")
-            sc.append(platform_duration(today, sc[11]))
-            duration = int(sc[26][0:2])
-            if duration <= 5:
+        elif user_type == 'user':
+            sc[3] = datetime.datetime.strptime(str(sc[3]), "%Y-%m-%d").strftime("%d-%m-%Y")
+            sc[4] = datetime.datetime.strptime(str(sc[4]), "%Y-%m-%d").strftime("%d-%m-%Y")
+            sc.append(platform_duration(today, sc[4]))
+            daysLeft = int(sc[9][0:2])
+            if daysLeft <= 5:
                 badgeColor = 'danger'
-            elif duration <= 10:
+            elif daysLeft <= 10:
                 badgeColor = 'warning'
             else:
                 badgeColor = 'success'
@@ -74,16 +78,17 @@ def screenDataFormat(scData, all):
 def index():
     # CATALOGE  
     cur = mysql.connection.cursor()
-    cur.execute('SELECT pl.name, sa.start_date, sa.end_date, sa.duration, pl.file_name, sa.id, sa.price FROM streaming_account sa, platform pl WHERE sa.select_platform = pl.id AND sa.last_screens != 0')
+    cur.execute('SELECT sa.id, pl.name, sa.start_date, sa.end_date, sa.price, pl.file_name FROM streaming_account sa, platform pl WHERE sa.select_platform = pl.id AND sa.last_screens != 0')
     mysql.connection.commit()
     dispSa = list(cur.fetchall())
 
-    # DATE FORMAT
+    # DATE FORMAT AND ADD DURATION 
     x = 0
     for sa in dispSa:
         sa = list(sa)
-        sa[1] = datetime.datetime.strptime(str(sa[1]), "%Y-%m-%d").strftime('%d-%m-%Y')
         sa[2] = datetime.datetime.strptime(str(sa[2]), "%Y-%m-%d").strftime('%d-%m-%Y')
+        sa[3] = datetime.datetime.strptime(str(sa[3]), "%Y-%m-%d").strftime('%d-%m-%Y')
+        sa.append(platform_duration(sa[2], sa[3]))
         dispSa[x] = sa
         x = x + 1
 
@@ -98,11 +103,11 @@ def index():
             reqData = cur.fetchall()
 
             # ACTIVATED SCREENS DATA
-            query1 = 'SELECT sc.id, pl.name, sa.email, sc.duration, sc.end_date, pl.file_name, us.username, us.phone, us.email FROM platform pl, screen sc, user us, streaming_account sa WHERE sc.platform = pl.id AND sc.client = us.id AND sc.account_id = sa.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
+            query1 = 'SELECT sc.id, pl.name, sa.email, sc.start_date, sc.end_date, pl.file_name, us.username, us.phone, us.email FROM platform pl, screen sc, user us, streaming_account sa WHERE sc.platform = pl.id AND sc.client = us.id AND sc.account_id = sa.id AND sc.client IS NOT NULL ORDER BY sc.start_date'
             cur.execute(query1)
             mysql.connection.commit()
             actSc = list(cur.fetchall())
-            actSc = screenDataFormat(actSc, 'all')
+            actSc = screenDataFormat(actSc, 'admin')
                 
             return render_template('admin.html', username = session['username'], user_type = session['user_type'], reqData = reqData, actSc = actSc, environment = environment)
         
@@ -114,11 +119,11 @@ def index():
             notifications = cur.fetchall()
 
             # ACTIVATED SCREENS DATA
-            query1 = 'SELECT * FROM platform pl, screen sc, streaming_account sa WHERE sc.platform = pl.id AND sc.account_id = sa.id AND sc.client = ' + str(session['id']) + ' ORDER BY sc.start_date'
+            query1 = 'SELECT sc.id, pl.name, pl.url, sa.start_date, sa.end_date, sa.email, sa.password, sc.month_pay, pl.file_name FROM platform pl, screen sc, streaming_account sa WHERE sc.platform = pl.id AND sc.account_id = sa.id AND sc.client = ' + str(session['id']) + ' ORDER BY sc.start_date'
             cur.execute(query1)
             mysql.connection.commit()
             actSc = list(cur.fetchall())
-            actSc = screenDataFormat(actSc, None)
+            actSc = screenDataFormat(actSc, 'user')
 
             return render_template('user.html', username = session['username'], dispSa = dispSa, actSc = actSc, environment = environment, notifications = notifications)
     return render_template('everybody.html', dispSa = dispSa, environment = environment)
@@ -204,8 +209,8 @@ def buy_account(saId):
         usAmount = cur.fetchone()
 
         # COMPARATION
-        if usAmount != None and saData[10] <= usAmount[0]:
-            newAmount = usAmount[0] - saData[10]
+        if usAmount != None and saData[9] <= usAmount[0]:
+            newAmount = usAmount[0] - saData[9]
             # SUBTRACTION
             query2 = 'UPDATE wallet SET amount = ' + str(newAmount) + ' WHERE user = ' + clId
             cur.execute(query2)
@@ -217,25 +222,26 @@ def buy_account(saId):
             mysql.connection.commit()
 
             # LAST SCREENS - 1
-            minur = saData[9] - 1
+            minur = saData[8] - 1
             query4 = 'UPDATE streaming_account SET last_screens = "' + str(minur) + '" WHERE id = ' + str(saId)
             cur.execute(query4)
             mysql.connection.commit()
 
             # GIVE DATA OF SCREEN
-            query5 = 'SELECT pl.name, sc.*, us.username FROM screen sc, platform pl, user us WHERE pl.id = sc.platform AND sc.client = us.id AND sc.account_id = ' + str(saId) + ' AND sc.client = ' + clId
+            query5 = 'SELECT pl.name, sc.start_date, sc.end_date, pl.url, sa.email, sa.password, sc.profile, us.username FROM screen sc, platform pl, user us, streaming_account sa WHERE pl.id = sc.platform AND sa.id = sc.account_id AND sc.client = us.id AND sc.account_id = ' + str(saId) + ' AND sc.client = ' + clId
             cur.execute(query5)
             mysql.connection.commit()
             scData = cur.fetchone()
+            accepted = True 
             screenData = f'''
             <b>Acceso a su perfil de {scData[0]}</b><br>
-            <b>Inicio: </b>{scData[5]}<br>
-            <b>Fin: </b>{scData[6]}<br>
+            <b>Inicio: </b>{scData[1]}<br>
+            <b>Fin: </b>{scData[2]}<br>
             🔊 Si ha usado {scData[0]} antes debe borrar los archivos temporales de su navegador y si es una aplicación debe volverla a instalar, si es Smart TV, cerrar la aplicación apague y encienda el televisor ¡No comparta su clave! Ya que {scData[0]} solo permite un máximo de usuarios en la cuenta. Si comparte la cuenta tendremos que suspender y cambiar las claves de acceso.<br>
-            <b>URL: </b>{scData[8]}<br>
-            <b>Email: </b>{scData[9]}<br>
-            <b>Clave: </b>{scData[10]}<br>
-            <b>Perfil: </b>{scData[3]}<br>
+            <b>URL: </b><a href="{scData[3]}" target="_blank">{scData[3]}<a><br>
+            <b>Email: </b>{scData[4]}<br>
+            <b>Clave: </b>{scData[5]}<br>
+            <b>Perfil: </b>{scData[6]}<br>
             <b>📣 TÉRMINOS Y CONDICIONES</b><br>
             1. No modifique ninguna información sobre la cuenta.<br>
             2. No cambie el correo electrónico o la contraseña de su cuenta.<br>
@@ -244,7 +250,6 @@ def buy_account(saId):
         else:
             accepted = False
             screenData = None
-        return feedback
     else:
         accepted = 'login'
         screenData = None
