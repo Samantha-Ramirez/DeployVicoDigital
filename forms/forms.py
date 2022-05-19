@@ -42,27 +42,6 @@ def get_date():
     value = today.strftime("%d/%m/%Y")
     return value
 
-def platform_duration(start, end):
-    year1 = int(start[0:4])
-    month1 = int(start[5:7])
-    day1 = int(start[8:10])
-    year2 = int(end[0:4])
-    month2 = int(end[5:7])
-    day2 = int(end[8:10])
-                                        
-    d0 = date(year1, month1, day1)
-    d1 = date(year2, month2, day2)
-    d3 = d1 - d0
-    duration = d3.days
-    months = round(duration / 31)
-
-    if months >= 1:
-        duration = str(months) + ' meses'
-    else:
-        duration = str(duration) + ' dias'
-
-    return duration 
-
 # PAGES
 @forms_bp.route('/dynamic_form/<form>-<formreq>')
 def dynamic_form(form, formreq):
@@ -251,7 +230,6 @@ def update(form, formreq, id):
                     values.append(string)
             # MULTIPLE SELECT
             elif formreq == 'supplier' and i['name'] == 'platform_that_supplies':
-                into.append(i['name'])
                 platforms = request.form.getlist(i['name'])
                 platforms_names = []
                 for pl in platforms:

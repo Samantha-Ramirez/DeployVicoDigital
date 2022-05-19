@@ -3,28 +3,8 @@
 {% block title %}Inicio | Sistema Streaming{% endblock %}
 
 {% block head %}
-    <div class="card">
-        <div class="card-body" id="notifications">
-            {% if notifications %}
-                {% for n in notifications %}
-                    <div class="row">
-                        <div class="col-md-11">
-                            {{n.3}}
-                            <p class="card-text"><small class="text-muted">{{n.2}}</small></p>
-                        </div>
-                        <div class="col-md-1">
-                            <button id="myId" type="submit" name="deleteNotification" class="btn btn-outline-danger btn-circle" value="{{n.0}}" onclick="newNotifications(this)" style="border-radius: 15px; padding:0; font-size: 0rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                No tienes notificaciones por el momento
-            {% endif %}
-        </div>
+    <div id="notifications">
+        <dynamic-notification></dynamic-notification>
     </div>
 {% endblock %}
 
@@ -45,37 +25,6 @@
         copyToClipboard(copyText.value);
     }
 
-    // Notifications
-    async function newNotifications(sel) {
-        var id = sel.value;
-        const response = await fetch(`/delete_notification/${id}`);
-        const newNotifications = await response.json();
-        let output = ``
-        if (newNotifications['newNotifications'][0] != null){
-            for (n in newNotifications['newNotifications']){
-                output = output + 
-                `
-                <div class="row">
-                    <div class="col-md-11">
-                        ${newNotifications['newNotifications'][n][3]}
-                        <p class="card-text"><small class="text-muted"> ${newNotifications['newNotifications'][n][2]} </small></p>
-                    </div>
-                    <div class="col-md-1">
-                        <button id="myId" type="submit" name="deleteNotification" class="btn btn-outline-danger btn-circle" value="${newNotifications['newNotifications'][n][0]}" onclick="fetchInfo(this)" style="border-radius: 15px; padding:0; font-size: 0rem;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                `
-            } 
-        }else{
-            output = 'No tienes notificaciones por el momento'
-        }
-        document.getElementById('notifications').innerHTML = output
-    };
-
     // Modal 
     function modal(id, title, body, footer, element) {
         let output = `
@@ -89,13 +38,13 @@
                     </div>
                     <div class="modal-body">
                         ${body}
-                    </div>
+                    </div>       
                     <div class="modal-footer">
                         ${footer}
                     </div>
                 </div>
             </div>
-        </div> 
+        </div>
         <button data-toggle="modal" data-target="#${element}${id}" id="${element}Toggler${id}" style="display:none;"></button>`
         document.getElementById(`${element}`).innerHTML = output
         const modalToggler = document.getElementById(`${element}Toggler${id}`);
@@ -103,11 +52,11 @@
     };
 
     // Are You Sure
-    function areYouSure(id, price) {
+    function areYouSure(id, price, link) {
         title = '¿Est&aacute; seguro?'
         body = `El precio es Bs. ${price}.`
         footer = `
-        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="buyAccount(${id})">S&iacute;</button>
+        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="${link}(${id})">S&iacute;</button>
         <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>`
         element = 'areYouSure' 
         modal(id, title, body, footer, element)
@@ -127,7 +76,25 @@
             title = 'No puede comprar por saldo insuficiente'
             body = 'Intente nuevamente luego de recargar su saldo'
             footer = `<a class="btn btn-success" href="/forms/dynamic_form/st-recharge_request">Recargar saldo</a>`
-            element = 'notBuy'
+            element = 'buy'
+        }
+        modal(id, title, body, footer, element)
+    };
+
+    async function renewAccount(id) {
+        const response = await fetch(`/renew_account/${id}`);
+        const feedback = await response.json();
+        if(feedback['accepted'] === true){
+            title = 'Renovación exitosa!'
+            body = `Sus datos son los mismos que tenía anteriormente`
+            footer = ``
+            element = 'renew'
+
+        }else if (feedback['accepted'] === false){
+            title = 'No puede renovar por saldo insuficiente'
+            body = 'Intente nuevamente luego de recargar su saldo'
+            footer = `<a class="btn btn-success" href="/forms/dynamic_form/st-recharge_request">Recargar saldo</a>`
+            element = 'renew'
         }
         modal(id, title, body, footer, element)
     };
@@ -135,8 +102,8 @@
 
 <div class="container">
     <div id="areYouSure"></div>
-    <div id="notBuy"></div>
     <div id="buy"></div>
+    <div id="renew"></div>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     {% for message in messages %}
@@ -190,7 +157,7 @@
                                             <b>Duraci&oacute;n: </b>{{sa.6}} <br>
                                             <b>Precio: </b>Bs. {{sa.4}}
                                         </p>
-                                        <a type="button" class="btn btn-success" style="display: block; margin: 0 auto;" onclick="areYouSure('{{sa.0}}', '{{sa.4}}')">Comprar</a>
+                                        <a type="button" class="btn btn-success" style="display: block; margin: 0 auto;" onclick="areYouSure('{{sa.0}}', '{{sa.4}}', 'buyAccount')">Comprar</a>
                                     </div> 
                                 </div>
                             </div>
@@ -246,12 +213,12 @@
                                             <p class="card-text">
                                                 <b>Fecha de inicio: </b>{{sc.3}} <br>
                                                 <b>Fecha de fin: </b>{{sc.4}} <br>
-                                                <b>Faltan: </b> <span class="badge bg-{{sc.10}}">{{sc.9}}</span> <br>
+                                                <b>Faltan: </b> <span class="badge bg-{{sc.11}}">{{sc.10}}</span> <br>
                                                 <b>Email: </b>{{sc.5}} <br>
                                                 <b>Clave: </b>{{sc.6}} <br>
                                                 <b>Pago mensual: </b> {{sc.7}}
                                             </p>
-                                            <a class="btn btn-primary" style="display: block; margin: 0 auto;">Pago mensual</a>
+                                            <a class="btn btn-primary" style="display: block; margin: 0 auto;" onclick="areYouSure('{{sc.0}}', '{{sc.9}}', 'renewAccount')">Pago mensual</a>
                                         </div> 
                                     </div>
                                 </div>

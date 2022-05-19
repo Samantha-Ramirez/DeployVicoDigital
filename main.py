@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from __init__ import create_app
 from cryptography.fernet import Fernet
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import datetime 
 import os
 
@@ -20,10 +20,10 @@ from tables.tables import tables_bp
 app.register_blueprint(tables_bp, url_prefix='/tables')
 
 # PAGE'S REQUIREMENTS
-def platform_duration(today, end):
-    year1 = int(today[0:2])
-    month1 = int(today[3:5])
-    day1 = int(today[6:10])
+def duration_days(start, end):
+    year1 = int(start[0:2])
+    month1 = int(start[3:5])
+    day1 = int(start[6:10])
     year2 = int(end[0:2])
     month2 = int(end[3:5])
     day2 = int(end[6:10])
@@ -32,14 +32,17 @@ def platform_duration(today, end):
     d1 = date(day2, month2, year2)
     d3 = d1 - d0
     duration = d3.days
+    return duration
+
+def duration_months(start, end):
+    duration = duration_days(start, end) 
     months = round(duration / 31)
 
     if months >= 1:
         duration = str(months) + ' meses'
     else:
         duration = str(duration) + ' días'
-
-    return duration 
+    return duration
 
 def screenDataFormat(scData, user_type):
     today = date.today().strftime('%d-%m-%Y')
@@ -50,9 +53,9 @@ def screenDataFormat(scData, user_type):
             sc[3] = datetime.datetime.strptime(str(sc[3]), "%Y-%m-%d").strftime("%d-%m-%Y")
             sc[4] = datetime.datetime.strptime(str(sc[4]), "%Y-%m-%d").strftime("%d-%m-%Y")
             # ADD DURATION
-            sc.append(platform_duration(sc[3], sc[4]))
+            sc.append(duration_months(sc[3], sc[4]))
             # ADD DAYS LEFT 
-            sc.append(platform_duration(today, sc[4]))
+            sc.append(duration_months(today, sc[4]))
             phone = sc[7]
             sc[7] = '+58' + phone[1:]
             warning = f'''Estimado cliente {sc[6]}, su cuenta de {sc[1]} bajo el email {sc[2]} se vencerá el {sc[4]}, recuerde renovar a tiempo'''
@@ -60,8 +63,8 @@ def screenDataFormat(scData, user_type):
         elif user_type == 'user':
             sc[3] = datetime.datetime.strptime(str(sc[3]), "%Y-%m-%d").strftime("%d-%m-%Y")
             sc[4] = datetime.datetime.strptime(str(sc[4]), "%Y-%m-%d").strftime("%d-%m-%Y")
-            sc.append(platform_duration(today, sc[4]))
-            daysLeft = int(sc[9][0:2])
+            sc.append(duration_months(today, sc[4]))
+            daysLeft = duration_days(today, sc[4])
             if daysLeft <= 5:
                 badgeColor = 'danger'
             elif daysLeft <= 10:
@@ -88,7 +91,7 @@ def index():
         sa = list(sa)
         sa[2] = datetime.datetime.strptime(str(sa[2]), "%Y-%m-%d").strftime('%d-%m-%Y')
         sa[3] = datetime.datetime.strptime(str(sa[3]), "%Y-%m-%d").strftime('%d-%m-%Y')
-        sa.append(platform_duration(sa[2], sa[3]))
+        sa.append(duration_months(sa[2], sa[3]))
         dispSa[x] = sa
         x = x + 1
 
@@ -112,20 +115,14 @@ def index():
             return render_template('admin.html', username = session['username'], user_type = session['user_type'], reqData = reqData, actSc = actSc, environment = environment)
         
         elif session['user_type'] == 'seller' or session['user_type'] == 'client':
-            # NOTIFICATIONS
-            query = 'SELECT * FROM notifications nt, user us WHERE nt.user = us.id AND us.id = ' + str(session['id'])
-            cur.execute(query)
-            mysql.connection.commit()
-            notifications = cur.fetchall()
-
             # ACTIVATED SCREENS DATA
-            query1 = 'SELECT sc.id, pl.name, pl.url, sa.start_date, sa.end_date, sa.email, sa.password, sc.month_pay, pl.file_name FROM platform pl, screen sc, streaming_account sa WHERE sc.platform = pl.id AND sc.account_id = sa.id AND sc.client = ' + str(session['id']) + ' ORDER BY sc.start_date'
+            query1 = 'SELECT sc.id, pl.name, pl.url, sc.start_date, sc.end_date, sa.email, sa.password, sc.month_pay, pl.file_name, sa.price FROM platform pl, screen sc, streaming_account sa WHERE sc.platform = pl.id AND sc.account_id = sa.id AND sc.client = ' + str(session['id']) + ' ORDER BY sc.start_date'
             cur.execute(query1)
             mysql.connection.commit()
             actSc = list(cur.fetchall())
             actSc = screenDataFormat(actSc, 'user')
 
-            return render_template('user.html', username = session['username'], dispSa = dispSa, actSc = actSc, environment = environment, notifications = notifications)
+            return render_template('user.html', username = session['username'], dispSa = dispSa, actSc = actSc, environment = environment)
     return render_template('everybody.html', dispSa = dispSa, environment = environment)
 
 @app.route('/profile')
@@ -176,19 +173,24 @@ def delete_notification(id):
         query = 'DELETE FROM notifications WHERE id = ' + str(id)
         cur.execute(query)
         mysql.connection.commit()
+    return redirect('/auth/login')
 
+@app.route('/fetch_notification', methods=['GET', 'POST'])
+def fetch_notification():
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
         query1 = 'SELECT * FROM notifications nt, user us WHERE nt.user = us.id AND us.id = ' + str(session['id'])
         cur.execute(query1)
         mysql.connection.commit()
-        newNotifications = list(cur.fetchall())
-        x = 0
-        for n in newNotifications:
+        notifications = list(cur.fetchall())
+        i = 0
+        for n in notifications:
             n = list(n)
             n[2] = datetime.datetime.strptime(str(n[2]), "%Y-%m-%d").strftime('%d-%m-%Y')
-            newNotifications[x] = n
-            x = x + 1
-        newNotifications = {'newNotifications': newNotifications}
-        return newNotifications
+            notifications[i] = n
+            i = i + 1
+        notifications = {'notifications': notifications}
+        return notifications
     return redirect('/auth/login')
 
 @app.route('/buy_account/<saId>', methods=['GET', 'POST'])
@@ -254,6 +256,48 @@ def buy_account(saId):
         accepted = 'login'
         screenData = None
     feedback = {'accepted': accepted, 'screenData': screenData}
+    return feedback
+
+@app.route('/renew_account/<scId>', methods=['GET', 'POST'])
+def renew_account(scId):
+    if 'loggedin' in session:
+        cur = mysql.connection.cursor()
+        # ACCOUNT DATA
+        query = 'SELECT sc.*, sa.price FROM screen sc, streaming_account sa WHERE sc.account_id = sa.id AND sc.id = ' + str(scId)
+        cur.execute(query)
+        mysql.connection.commit()
+        scData = cur.fetchone()
+
+        # WALLET
+        clId = str(session['id'])
+        query1 = 'SELECT amount FROM wallet WHERE user = ' + clId
+        cur.execute(query1)
+        mysql.connection.commit()
+        usAmount = cur.fetchone()
+
+        # COMPARATION
+        if usAmount != None and scData[8] <= usAmount[0]:
+            newAmount = usAmount[0] - scData[8]
+            # SUBTRACTION
+            query2 = 'UPDATE wallet SET amount = ' + str(newAmount) + ' WHERE user = ' + clId
+            cur.execute(query2)
+            mysql.connection.commit()
+
+            # CHANGING START-DATE AND END-DATE 
+            startDate = scData[4]
+            endDate = scData[5]
+            startDateFormat = datetime.datetime.strptime(str(startDate), "%Y-%m-%d").strftime("%d-%m-%Y")
+            endDateFormat = datetime.datetime.strptime(str(endDate), "%Y-%m-%d").strftime("%d-%m-%Y")
+            duration = duration_days(startDateFormat, endDateFormat)
+            newEndDate = endDate + timedelta(days=duration)
+            query3 = 'UPDATE screen SET start_date = "' + str(endDate) + '", end_date = "' + str(newEndDate) + '" WHERE id = ' + scId
+            cur.execute(query3)
+            mysql.connection.commit()            
+
+            accepted = True 
+        else:
+            accepted = False
+    feedback = {'accepted': accepted}
     return feedback
 
 @app.route('/recharge_request/<id>/<option>', methods=['GET', 'POST'])
