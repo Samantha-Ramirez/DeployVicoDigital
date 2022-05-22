@@ -164,7 +164,7 @@ def profile():
 
 @app.route('/referencelink/<parent_id>')
 def referenceLink(parent_id):
-    return redirect('/auth/signup_seller/' + parent_id)
+    return redirect('/auth/signup/seller/' + parent_id)
 
 @app.route('/delete_notification/<id>', methods=['GET', 'POST'])
 def delete_notification(id):
