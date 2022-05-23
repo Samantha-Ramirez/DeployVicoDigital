@@ -295,7 +295,7 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-CREATE DEFINER=`` EVENT `unmatchSa` ON SCHEDULE EVERY 1 DAY STARTS '2022-05-16 21:14:42' ON COMPLETION PRESERVE ENABLE DO UPDATE screen SET client = NULL, month_pay = 'no' WHERE end_date = (current_date() + INTERVAL 1 DAY)
+CREATE EVENT `unmatchSa` ON SCHEDULE EVERY 1 DAY STARTS '2022-05-16 21:14:42' ON COMPLETION PRESERVE ENABLE DO UPDATE screen SET client = NULL, month_pay = 'no' WHERE end_date = (current_date() + INTERVAL 1 DAY);
 
 /*YOBELL DE ADMIN*/
 INSERT INTO `user` (`id`, `user_type`, `parent_id`, `username`, `email`, `password`, `phone`, `ci`, `gender`) VALUES ('1', 'admin', NULL, 'Yobell Yupanqui', 'yobell@gmail.com', 'yobelladmin', '04127026710', '23178067', 'Hombre');
