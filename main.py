@@ -156,7 +156,7 @@ def profile():
         if environment == 'development':
             link = 'http://127.0.0.1:3000/referencelink'
         else: 
-            link = 'http://vicoweb.pythonanywhere.com/referencelink'
+            link = 'https://vicoweb.pythonanywhere.com/referencelink'
 
         return render_template('profile.html', account = account, money = money, link = link, id =  id, user_type = session['user_type'], dataTeam = dataTeam)
     
