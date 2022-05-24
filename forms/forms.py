@@ -16,9 +16,6 @@ forms_bp = Blueprint('forms_bp', __name__,
 # PAGE'S REQUIREMENTS
 app, mysql, environment = create_app()
 
-basepath = path.dirname(__file__)
-app.config['UPLOAD_FOLDER'] = 'static/img'
-
 def get_json_form(form):
     if environment == 'development':
         stformFullPath = os.path.realpath('./stform.json')
@@ -91,7 +88,7 @@ def add(form, formreq):
             elif i['type'] == 'file':
                 file = request.files[i['name']]
                 fileName = secure_filename(file.filename)
-                route = path.abspath(path.join(basepath, "static\\img\\" + fileName))
+                route = path.abspath(path.join(app.static_folder, fileName))
                 file.save(route)
                 into.append(i['name']) 
                 values.append('"' + fileName + '"')
@@ -217,7 +214,7 @@ def update(form, formreq, id):
             elif i['type'] == 'file':
                 file = request.files[i['name']]
                 fileName = secure_filename(file.filename)
-                route = path.abspath(path.join(basepath, "static\\img\\" + fileName))
+                route = path.abspath(path.join(app.static_folder, fileName))
                 file.save(route)
                 string = i['name'] + ' = ' + '"' + fileName + '"'
                 values.append(string)

@@ -136,11 +136,7 @@
                         {% endif %}              
                         <div class="col-md-3">
                             <div class="card">     
-                                {% if environment == 'development' %}
-                                    <img class="card-img-top" src="/forms/static/img/{{sa.5}}" alt="Card image cap" width="500" height="200">
-                                {% else %}
-                                    <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sa.5}}" alt="Card image cap" width="500" height="200">
-                                {% endif %}
+                                <img class="card-img-top" src="{{url_for('static', filename='img/' + sa.5)}}" alt="Card image cap" width="500" height="200">
                                 <div class="card-body">
                                     <p class="card-text">
                                         <a class="btn" data-toggle="collapse" href="#ct{{sa.0}}" role="button" aria-expanded="false" aria-controls="ct{{sa.0}}" style="display: block; margin: 0 auto;">
@@ -193,11 +189,7 @@
                             {% endif %}              
                             <div class="col-md-3">
                                 <div class="card">     
-                                    {% if environment == 'development' %}
-                                        <img class="card-img-top" src="/forms/static/img/{{sc.8}}" alt="Card image cap" width="500" height="200">
-                                    {% else %}
-                                        <img class="card-img-top" src="https://www.pythonanywhere.com/user/vicoweb/files/home/vicoweb/deploy/forms/static%5Cimg%5C{{sc.8}}" alt="Card image cap" width="500" height="200">
-                                    {% endif %}
+                                    <img class="card-img-top" src="{{url_for('static', filename='img/' + sc.8)}}" alt="Card image cap" width="500" height="200">
                                     <div class="card-body">
                                         <p class="card-text">
                                             <a class="btn" data-toggle="collapse" href="#as{{sc.0}}" role="button" aria-expanded="false" aria-controls="as{{sc.0}}" style="display: block; margin: 0 auto;">

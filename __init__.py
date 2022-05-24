@@ -9,7 +9,7 @@ def create_app():
     else: 
         environment = None
     
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder ='static')
 
     # DATABASE CONFIGURATION
     if environment == 'development':
