@@ -88,7 +88,7 @@ def add(form, formreq):
             elif i['type'] == 'file':
                 file = request.files[i['name']]
                 fileName = secure_filename(file.filename)
-                route = path.abspath(path.join(app.static_folder, fileName))
+                route = path.abspath(path.join(app.static_folder, 'img\\' + fileName))
                 file.save(route)
                 into.append(i['name']) 
                 values.append('"' + fileName + '"')
@@ -214,7 +214,7 @@ def update(form, formreq, id):
             elif i['type'] == 'file':
                 file = request.files[i['name']]
                 fileName = secure_filename(file.filename)
-                route = path.abspath(path.join(app.static_folder, fileName))
+                route = path.abspath(path.join(app.static_folder, "img\\" + fileName))
                 file.save(route)
                 string = i['name'] + ' = ' + '"' + fileName + '"'
                 values.append(string)
