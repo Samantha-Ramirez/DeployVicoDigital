@@ -149,7 +149,7 @@ def profile():
         cur = mysql.connection.cursor()
         cur.execute(query)
         mysql.connection.commit()
-        dataTeam = cur.fetchall()
+        dataTeam = cur.fetchall() 
 
         # REFERENCE LINK
         id = str(session['id'])
