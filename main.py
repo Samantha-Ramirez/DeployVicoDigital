@@ -219,7 +219,7 @@ def buy_account(saId):
             mysql.connection.commit()
 
             # ASIGN SCREEN
-            query3 = 'UPDATE screen SET client = ' + clId + ' WHERE id = (SELECT MIN(id) FROM screen WHERE account_id = ' + str(saId) + ' AND client IS NULL)'
+            query3 = 'UPDATE screen SET client = ' + clId + ' WHERE id = (SELECT * FROM (SELECT MIN(id) FROM screen WHERE account_id = ' + str(saId) + ' AND client IS NULL) a)'
             cur.execute(query3)
             mysql.connection.commit()
 
